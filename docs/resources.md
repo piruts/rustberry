@@ -1,3 +1,5 @@
+# Table of Useful Resources
+
 | Topic        | Resource | Description |
 |--------------|----------|-------------|
 | Rust         | [Rust Book](https://doc.rust-lang.org/book/) | If you are not yet comfortable with Rust, we highly suggest reading this book. |
