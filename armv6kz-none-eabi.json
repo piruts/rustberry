@@ -1,0 +1,30 @@
+{
+  "llvm-target": "armv6kz-none-eabi",
+  "target-endian": "little",
+  "arch": "arm",
+  "os": "none",
+  "env": "eabi",
+  "vendor": "unknown",
+  "cpu": "arm1176jzf-s",
+  "target-pointer-width": "32",
+  "target-c-int-width": "32",
+  "max-atomic-width": 32,
+  
+  "data-layout": "e-m:e-p:32:32-i64:64-v128:64:128-a:0:32-n32-S64",
+  "disable-redzone": true,
+  "emit-debug-gdb-scripts": false,
+  "executables": true,
+  "features": "+v6,+thumb2,+soft-float,-neon,+strict-align",
+  "linker": "rust-lld",
+  "linker-flavor": "ld.lld",
+  "panic-strategy": "abort",
+  "relocation-model": "static",
+  "unsupported-abis": [
+    "stdcall",
+    "fastcall",
+    "vectorcall",
+    "thiscall",
+    "win64",
+    "sysv64"
+  ]
+}
