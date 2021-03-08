@@ -1,17 +1,25 @@
+## SPDX-License-Identifier: MIT OR Apache-2.0
+##
+## Copyright (c) 2018-2021 Andre Richter <andre.o.richter@gmail.com>
+## 
+## Edited 2021 by Flynn Dreilniger <flynnd@stanford.edu> and Ashish Rao <aprao@stanford.edu>
+
 PROJECT           = project
 TARGET            = armv6kz-none-eabi
 KERNEL_BIN        = $(PROJECT).bin
 OBJDUMP_BINARY    = arm-none-eabi-objdump
 NM_BINARY         = arm-none-eabi-nm
-LINKER_FILE       = src/boot/memmap
+LINKER_FILE       = src/bsp/raspberrypi/link.ld
 
 # Export for build.rs
 export LINKER_FILE
 
 RUSTFLAGS          = -C link-arg=-T$(LINKER_FILE)
-RUSTFLAGS_PEDANTIC = $(RUSTFLAGS) -D warnings
+RUSTFLAGS_PEDANTIC = $(RUSTFLAGS) -D warnings -D missing_docs
 
+FEATURES      = bsp_rpiA
 COMPILER_ARGS = --target=$(TARGET).json \
+    --features $(FEATURES)         \
     --release                      \
     -Z build-std=core
 
@@ -27,18 +35,17 @@ KERNEL_ELF = target/$(TARGET)/release/$(PROJECT)
 
 .PHONY: all $(KERNEL_ELF) $(KERNEL_BIN) doc clippy clean readelf objdump nm check
 
+$(KERNEL_ELF):
+	RUSTFLAGS="$(RUSTFLAGS_PEDANTIC)" $(RUSTC_CMD)
+
+$(KERNEL_BIN): $(KERNEL_ELF)
+	@$(OBJCOPY_CMD) $(KERNEL_ELF) $(KERNEL_BIN)
+
 all: $(KERNEL_BIN)
 elf: $(KERNEL_ELF)
 
 run: $(KERNEL_BIN)
-	rpi-run.py $(KERNEL_BIN)
-
-$(KERNEL_ELF):
-	arm-none-eabi-as src/boot/boot.s -o boot.o
-	RUSTFLAGS="$(RUSTFLAGS_PEDANTIC)" $(RUSTC_CMD) 
-
-$(KERNEL_BIN): $(KERNEL_ELF)
-	@$(OBJCOPY_CMD) $(KERNEL_ELF) $(KERNEL_BIN)
+	rpi-run.py $(PROJECT).bin
 
 doc:
 	$(DOC_CMD) --document-private-items --open
