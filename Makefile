@@ -4,7 +4,7 @@
 
 PROJECT           = project
 TARGET            = armv6kz-none-eabi
-KERNEL_BIN        = kernel.img
+KERNEL_BIN        = $(PROJECT).bin
 OBJDUMP_BINARY    = aarch32-none-elf-objdump
 NM_BINARY         = aarch32-none-elf-nm
 LINKER_FILE       = src/bsp/raspberrypi/link.ld
@@ -58,6 +58,9 @@ objdump: $(KERNEL_ELF)
 
 nm: $(KERNEL_ELF)
 	@$(DOCKER_ELFTOOLS) $(NM_BINARY) --demangle --print-size $(KERNEL_ELF) | sort | rustfilt
+
+run: $(KERNEL_BIN)
+	rpi-run.py $(PROJECT).bin
 
 # For rust-analyzer
 check:
