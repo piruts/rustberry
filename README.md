@@ -1,12 +1,7 @@
 # piruts
 
-build with 
+build and run with 
 
 ```bash
-make
-```
-
-load code with
-```bash
-rpi-run.py project.bin
+make run
 ```
