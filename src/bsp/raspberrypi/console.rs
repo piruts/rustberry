@@ -12,7 +12,7 @@ use core::fmt;
 //--------------------------------------------------------------------------------------------------
 
 /// A mystical, magical device for generating QEMU output out of the void.
-struct QEMUOutput;
+struct QemuOutput;
 
 //--------------------------------------------------------------------------------------------------
 // Private Code
@@ -25,7 +25,7 @@ struct QEMUOutput;
 /// See [`src/print.rs`].
 ///
 /// [`src/print.rs`]: ../../print/index.html
-impl fmt::Write for QEMUOutput {
+impl fmt::Write for QemuOutput {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         for c in s.chars() {
             unsafe {
@@ -43,5 +43,5 @@ impl fmt::Write for QEMUOutput {
 
 /// Return a reference to the console.
 pub fn console() -> impl console::interface::Write {
-    QEMUOutput {}
+    QemuOutput {}
 }
