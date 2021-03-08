@@ -1,12 +1,14 @@
 ## SPDX-License-Identifier: MIT OR Apache-2.0
 ##
 ## Copyright (c) 2018-2021 Andre Richter <andre.o.richter@gmail.com>
+## 
+## Edited 2021 by Flynn Dreilniger <flynnd@stanford.edu> and Ashish Rao <aprao@stanford.edu>
 
 PROJECT           = project
 TARGET            = armv6kz-none-eabi
 KERNEL_BIN        = $(PROJECT).bin
-OBJDUMP_BINARY    = aarch32-none-elf-objdump
-NM_BINARY         = aarch32-none-elf-nm
+OBJDUMP_BINARY    = arm-none-eabi-objdump
+NM_BINARY         = arm-none-eabi-nm
 LINKER_FILE       = src/bsp/raspberrypi/link.ld
 
 # Export for build.rs
@@ -31,15 +33,19 @@ OBJCOPY_CMD = rust-objcopy \
 
 KERNEL_ELF = target/$(TARGET)/release/$(PROJECT)
 
-.PHONY: all $(KERNEL_ELF) $(KERNEL_BIN) doc qemu clippy clean readelf objdump nm check
-
-all: $(KERNEL_BIN)
+.PHONY: all $(KERNEL_ELF) $(KERNEL_BIN) doc clippy clean readelf objdump nm check
 
 $(KERNEL_ELF):
 	RUSTFLAGS="$(RUSTFLAGS_PEDANTIC)" $(RUSTC_CMD)
 
 $(KERNEL_BIN): $(KERNEL_ELF)
 	@$(OBJCOPY_CMD) $(KERNEL_ELF) $(KERNEL_BIN)
+
+all: $(KERNEL_BIN)
+elf: $(KERNEL_ELF)
+
+run: $(KERNEL_BIN)
+	rpi-run.py $(PROJECT).bin
 
 doc:
 	$(DOC_CMD) --document-private-items --open
@@ -58,9 +64,6 @@ objdump: $(KERNEL_ELF)
 
 nm: $(KERNEL_ELF)
 	@$(DOCKER_ELFTOOLS) $(NM_BINARY) --demangle --print-size $(KERNEL_ELF) | sort | rustfilt
-
-run: $(KERNEL_BIN)
-	rpi-run.py $(PROJECT).bin
 
 # For rust-analyzer
 check:
