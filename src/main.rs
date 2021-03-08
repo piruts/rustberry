@@ -125,7 +125,9 @@ mod runtime_init;
 const GPIO_BASE: u32 = 0x20200000;
 fn sleep(value: u32) {
     for _ in 1..value {
-        unsafe { asm!(""); }
+        unsafe {
+            asm!("");
+        }
     }
 }
 
@@ -135,16 +137,20 @@ fn sleep(value: u32) {
 ///
 /// - Only a single core must be active and running this function.
 #[no_mangle]
-pub extern fn main() -> ! {
+pub extern "C" fn main() -> ! {
     println!("[0] Hello from Rust!");
     let gpio = GPIO_BASE as *const u32;
     let led_on = unsafe { gpio.offset(8) as *mut u32 };
     let led_off = unsafe { gpio.offset(11) as *mut u32 };
 
     loop {
-        unsafe { *(led_on) = 1 << 15; }
+        unsafe {
+            *(led_on) = 1 << 15;
+        }
         sleep(1000000);
-        unsafe { *(led_off) = 1 << 15; }
+        unsafe {
+            *(led_off) = 1 << 15;
+        }
         sleep(1000000);
     }
     // panic!("Stopping here.");
