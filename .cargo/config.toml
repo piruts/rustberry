@@ -1,5 +1,0 @@
-[build]
-target = "armv6kz-none-eabi"
-
-[unstable]
-build-std = ["core", "compiler_builtins"]
