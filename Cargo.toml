@@ -1,5 +1,5 @@
 [package]
-name = "project"
+name = "rustberry"
 version = "0.1.0"
 authors = ["Flynn Dreilinger <flynnd@stanford.edu>"]
 edition = "2018"
