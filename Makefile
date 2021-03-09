@@ -4,7 +4,7 @@
 ## 
 ## Edited 2021 by Flynn Dreilniger <flynnd@stanford.edu> and Ashish Rao <aprao@stanford.edu>
 
-PROJECT           = project
+PROJECT           = rustberry
 TARGET            = armv6kz-none-eabi
 KERNEL_BIN        = $(PROJECT).bin
 OBJDUMP_BINARY    = arm-none-eabi-objdump
