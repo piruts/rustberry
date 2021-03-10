@@ -2,7 +2,7 @@
 ##
 ## Copyright (c) 2018-2021 Andre Richter <andre.o.richter@gmail.com>
 ## 
-## Edited 2021 by Flynn Dreilniger <flynnd@stanford.edu> and Ashish Rao <aprao@stanford.edu>
+## Edited 2021 by Flynn Dreilinger <flynnd@stanford.edu> and Ashish Rao <aprao@stanford.edu>
 
 PROJECT           = rustberry
 TARGET            = armv6kz-none-eabi
