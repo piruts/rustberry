@@ -122,13 +122,8 @@ mod panic_wait;
 mod print;
 mod runtime_init;
 
-const GPIO_BASE: u32 = 0x20200000;
-fn sleep(value: u32) {
-    for _ in 1..value {
-        unsafe {
-            asm!("");
-        }
-    }
+fn it_works() {
+    assert_eq!(2 + 2, 5);
 }
 
 /// Early init code.
@@ -139,19 +134,7 @@ fn sleep(value: u32) {
 #[no_mangle]
 pub extern "C" fn main() -> ! {
     println!("[0] Hello from Rust!");
-    let gpio = GPIO_BASE as *const u32;
-    let led_on = unsafe { gpio.offset(8) as *mut u32 };
-    let led_off = unsafe { gpio.offset(11) as *mut u32 };
-
-    loop {
-        unsafe {
-            *(led_on) = 1 << 15;
-        }
-        sleep(1000000);
-        unsafe {
-            *(led_off) = 1 << 15;
-        }
-        sleep(1000000);
-    }
+    it_works();
+    cpu::wait_forever();
     // panic!("Stopping here.");
 }
