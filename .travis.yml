@@ -6,5 +6,6 @@ before_script:
   - cargo install cargo-binutils
   - rustup component add llvm-tools-preview
   - rustup component add clippy
+  - rustup component add rust-src
 script:
   - make clippy
