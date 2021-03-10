@@ -21,24 +21,28 @@ visit: https://rustup.rs/#
 rustup override set nightly
 ```
 
-### Install Bin Utils and LLVM Tools
+### Install Dependencies
 ```bash
 cargo install cargo-binutils
 rustup component add llvm-tools
+rustup component add clippy
+rustup component add rust-src
 ```
 
 ## Build
 
+**Compile and run on hardware**
+
 ```bash
 make run
 ```
-Generate docs with
+**Generate docs**
 
 ```
 make doc
 ```
 
-Run linter
+**Run linter**
 ```
 make clippy
 ```
