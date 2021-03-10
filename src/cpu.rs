@@ -17,7 +17,7 @@ mod boot;
 //--------------------------------------------------------------------------------------------------
 pub use arch_cpu::wait_forever;
 
-// Pause execution on the core by doing something small again and again.
+/// Pause execution on the core by doing something small again and again.
 pub fn sleep(value: u32) {
     for _ in 1..value {
         unsafe {
