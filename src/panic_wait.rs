@@ -9,7 +9,7 @@
 use crate::{cpu, println};
 use core::panic::PanicInfo;
 
-const GPIO_BASE: u32 = 0x20200000;
+const GPIO_BASE: u32 = 0x20200000; // leave here to test GPIO module
 
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
