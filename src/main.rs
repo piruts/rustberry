@@ -143,7 +143,12 @@ pub extern "C" fn main() -> ! {
 // -------------------------------------------------------------------------------------------------
 
 fn it_works() {
-    assert_eq!(2 + 2, 4);
+    assert_eq!(fake_helper(2, 2), 4);
+}
+
+fn fake_helper(arg1: u32, arg2: u32) -> u32 {
+    let out = arg1 + arg2;
+    return out;
 }
 
 fn it_does_not_work() {
