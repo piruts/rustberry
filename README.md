@@ -1,3 +1,4 @@
+[![Build Status](https://staging.travis-ci.com/piruts/rustberry.svg?branch=main)](https://staging.travis-ci.com/piruts/rustberry)
 # Rustberry Pi
 
 ## Setup
