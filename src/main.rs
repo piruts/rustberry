@@ -148,7 +148,7 @@ fn it_works() {
 
 fn fake_helper(arg1: u32, arg2: u32) -> u32 {
     let out = arg1 + arg2;
-    return out;
+    out
 }
 
 fn it_does_not_work() {
