@@ -4,6 +4,7 @@ const MAILBOX_EMPTY: u32 = 1<<30;
 const MAILBOX_MAXCHANNEL: u32 = 16;
 const GPU_NOCACHE: u32 = 0x40000000;
 
+#[repr(C)]
 struct MailboxT {
     read: u32,
     padding: [u32; 3],
@@ -27,11 +28,11 @@ pub fn mailbox_read(channel: u32) -> u32 {
     unsafe {
         loop {
             loop {
-                let stat = unsafe { core::ptr::read_volatile(&mut mailbox.status) };
+                let stat = core::ptr::read_volatile(&mut mailbox.status);
                 if !((stat & MAILBOX_EMPTY) > 0) { break; }
             }
                 
-            let data: u32 = unsafe { core::ptr::read_volatile(&mut mailbox.read) };
+            let data: u32 = core::ptr::read_volatile(&mut mailbox.read);
             if (data & 0xF) == channel {
                 return data >> 4;
             }
@@ -46,7 +47,7 @@ pub fn mailbox_write(channel: u32, mut addr: u32) -> bool {
    
     unsafe {
         loop {
-            let stat = unsafe { core::ptr::read_volatile(&mut mailbox.status) };
+            let stat = core::ptr::read_volatile(&mut mailbox.status);
             if !((stat & MAILBOX_FULL) > 0) { break };
         }
     }
