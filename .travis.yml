@@ -9,3 +9,4 @@ before_script:
   - rustup component add rust-src
 script:
   - make clippy
+cache: cargo
