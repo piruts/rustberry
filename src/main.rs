@@ -114,14 +114,16 @@
 #![no_main]
 #![no_std]
 
+
 mod bsp;
 mod console;
-pub mod cpu;
+mod cpu;
 mod memory;
 mod panic_wait;
 mod print;
 mod runtime_init;
 mod test;
+mod uart;
 
 /// Early init code.
 ///
@@ -131,6 +133,9 @@ mod test;
 #[no_mangle]
 pub extern "C" fn main() -> ! {
     println!("[0] Hello from Rust!");
+    unsafe {
+        uart::put_string(8 as *const u8);
+    }
     test::start_tests();
     it_works();
     it_does_not_work();
