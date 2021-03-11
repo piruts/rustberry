@@ -124,7 +124,8 @@ mod panic_wait;
 mod print;
 mod runtime_init;
 
-mod mailbox;
+//mod mailbox;
+mod fb;
 
 const GPIO_BASE: u32 = 0x20200000;
 
@@ -148,7 +149,7 @@ pub extern "C" fn main() -> ! {
     let led_on = unsafe { gpio.offset(8) as *mut u32 };
     let led_off = unsafe { gpio.offset(11) as *mut u32 };
     
-    mailbox::test();
+    fb::test();
 
     loop {
         unsafe {
