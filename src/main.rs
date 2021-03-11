@@ -116,20 +116,12 @@
 
 mod bsp;
 mod console;
-mod cpu;
+pub mod cpu;
 mod memory;
 mod panic_wait;
 mod print;
 mod runtime_init;
-
-const GPIO_BASE: u32 = 0x20200000;
-fn sleep(value: u32) {
-    for _ in 1..value {
-        unsafe {
-            asm!("");
-        }
-    }
-}
+mod test;
 
 /// Early init code.
 ///
@@ -139,19 +131,29 @@ fn sleep(value: u32) {
 #[no_mangle]
 pub extern "C" fn main() -> ! {
     println!("[0] Hello from Rust!");
-    let gpio = GPIO_BASE as *const u32;
-    let led_on = unsafe { gpio.offset(8) as *mut u32 };
-    let led_off = unsafe { gpio.offset(11) as *mut u32 };
-
-    loop {
-        unsafe {
-            *(led_on) = 1 << 15;
-        }
-        sleep(1000000);
-        unsafe {
-            *(led_off) = 1 << 15;
-        }
-        sleep(1000000);
-    }
-    // panic!("Stopping here.");
+    test::start_tests();
+    it_works();
+    it_does_not_work();
+    test::success();
+    cpu::wait_forever();
 }
+
+// -------------------------------------------------------------------------------------------------
+// tests start here
+// -------------------------------------------------------------------------------------------------
+
+fn it_works() {
+    assert_eq!(fake_helper(2, 2), 4);
+}
+
+fn fake_helper(arg1: u32, arg2: u32) -> u32 {
+    arg1 + arg2
+}
+
+fn it_does_not_work() {
+    assert_eq!(2 + 2, 5);
+}
+
+// -------------------------------------------------------------------------------------------------
+// tests start here
+// -------------------------------------------------------------------------------------------------
