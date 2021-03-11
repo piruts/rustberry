@@ -20,12 +20,12 @@ const MINI_UART_LSR_RX_READY: u32 = 0x00000001;
 const MINI_UART_LSR_TX_EMPTY: u32 = 0x00000020;
 
 const MINI_UART_CNTL_TX_ENABLE: u32 = 0x00000002;
-// const MINI_UART_CNTL_RX_ENABLE: u32 = 0x00000001;
+const MINI_UART_CNTL_RX_ENABLE: u32 = 0x00000001;
 
 const GPIO_BASE: u32 = 0x20200000; // leave here to test GPIO module
 
 #[repr(C)]
-pub struct UART {
+pub struct Uart {
     pub data: u32,
     pub ier: u32,
     pub iir: u32,
@@ -38,7 +38,7 @@ pub struct UART {
     pub stat: u32,
     pub baud: u32,
 }
-static mut UART: *mut UART = MINI_UART_BASE as u32 as *mut UART as *mut UART;
+static mut UART: *mut Uart = MINI_UART_BASE as u32 as *mut Uart as *mut Uart;
 
 /* Key detail from the Broadcom Peripherals data sheet p.10
 *
@@ -68,11 +68,11 @@ pub unsafe extern "C" fn uart_init() {
     let aux: *mut u32 = AUX_ENABLES as u32 as *mut u32;
     *aux |= AUX_ENABLE as u32;
 
-    core::ptr::write_volatile(&mut (*UART).ier as *mut u32, 0 as u32); // wait for char
-    core::ptr::write_volatile(&mut (*UART).cntl as *mut u32, 0 as u32);
+    core::ptr::write_volatile(&mut (*UART).ier as *mut u32, 0_u32); // wait for char
+    core::ptr::write_volatile(&mut (*UART).cntl as *mut u32, 0_u32);
     core::ptr::write_volatile(&mut (*UART).lcr as *mut u32, MINI_UART_LCR_8BIT as u32);
-    core::ptr::write_volatile(&mut (*UART).mcr as *mut u32, 0 as u32);
-    core::ptr::write_volatile(&mut (*UART).ier as *mut u32, 0 as u32);
+    core::ptr::write_volatile(&mut (*UART).mcr as *mut u32, 0_u32);
+    core::ptr::write_volatile(&mut (*UART).ier as *mut u32, 0_u32);
     core::ptr::write_volatile(
         &mut (*UART).iir as *mut u32,
         (MINI_UART_IIR_RX_FIFO_CLEAR
@@ -81,23 +81,23 @@ pub unsafe extern "C" fn uart_init() {
             | MINI_UART_IIR_TX_FIFO_ENABLE) as u32,
     );
     // baud rate ((250,000,000/115200)/8)-1 = 270
-    core::ptr::write_volatile(&mut (*UART).baud as *mut u32, 270 as u32);
+    core::ptr::write_volatile(&mut (*UART).baud as *mut u32, 270_u32);
     core::ptr::write_volatile(
         &mut (*UART).cntl as *mut u32,
-        (MINI_UART_CNTL_TX_ENABLE | MINI_UART_CNTL_TX_ENABLE) as u32,
+        (MINI_UART_CNTL_TX_ENABLE | MINI_UART_CNTL_RX_ENABLE) as u32,
     );
 }
 
 #[no_mangle]
 unsafe fn recieve() -> u8 {
-    while has_char() == false {}
-    return (*UART).data as u8 & 0xff;
+    while !has_char() {}
+    (*UART).data as u8
 }
 
 #[no_mangle]
 unsafe fn send(byte: u8) {
     while (*UART).lsr & MINI_UART_LSR_TX_EMPTY as u32 == 0 {}
-    core::ptr::write_volatile(&mut (*UART).data as *mut u32, byte as u32 & 0xff as u32);
+    core::ptr::write_volatile(&mut (*UART).data as *mut u32, byte as u32 & 0xff_u32);
 }
 
 #[no_mangle]
@@ -126,7 +126,7 @@ pub unsafe extern "C" fn put_char(ch: u8) -> u8 {
     // without it, all output (print/assert) can fail and no
     // clear indication because of self-referential nature of problem
     if ch as char == '\n' {
-        send('\r' as u8);
+        send(b'\r');
     }
     send(ch);
     ch
@@ -139,5 +139,5 @@ pub unsafe extern "C" fn put_string(str: *const u8) -> u32 {
         put_char(*str.offset(n as isize) as u8);
         n += 1
     }
-    return n;
+    n
 }
