@@ -122,6 +122,8 @@ mod panic_wait;
 mod print;
 mod runtime_init;
 mod test;
+mod gpio;
+use gpio::*;
 
 /// Early init code.
 ///
@@ -132,8 +134,9 @@ mod test;
 pub extern "C" fn main() -> ! {
     println!("[0] Hello from Rust!");
     test::start_tests();
-    it_works();
-    it_does_not_work();
+//    it_works();
+//    it_does_not_work();
+    test_gpio();
     test::success();
     cpu::wait_forever();
 }
@@ -141,7 +144,7 @@ pub extern "C" fn main() -> ! {
 // -------------------------------------------------------------------------------------------------
 // tests start here
 // -------------------------------------------------------------------------------------------------
-
+/*
 fn it_works() {
     assert_eq!(fake_helper(2, 2), 4);
 }
@@ -153,7 +156,15 @@ fn fake_helper(arg1: u32, arg2: u32) -> u32 {
 fn it_does_not_work() {
     assert_eq!(2 + 2, 5);
 }
+*/
 
+fn test_gpio() {
+    unsafe {
+        gpio_set_output(16);
+        gpio_write(16, 1);
+    }
+    assert_eq!(unsafe {gpio_read(16)}, 1);
+}
 // -------------------------------------------------------------------------------------------------
 // tests start here
 // -------------------------------------------------------------------------------------------------
