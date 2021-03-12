@@ -53,8 +53,8 @@ $(TEST): $(KERNEL_ELF_TEST)
 all: $(APPLICATION)
 elf: $(KERNEL_ELF)
 
-run: $(APPLICATION)
-	rpi-run.py $(PROJECT).bin
+run: $(KERNEL_BIN)
+	./bin/rpi-run.py -p -t 2 $(PROJECT).bin
 
 test: $(TEST)
 	rpi-run.py $(PROJECT).bin

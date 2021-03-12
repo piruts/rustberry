@@ -116,12 +116,13 @@
 
 mod bsp;
 mod console;
-pub mod cpu;
+mod cpu;
 mod memory;
 mod panic_wait;
 mod print;
 mod runtime_init;
 mod test;
+mod uart;
 
 /// Early init code.
 ///
@@ -131,7 +132,11 @@ mod test;
 #[no_mangle]
 pub extern "C" fn main() -> ! {
     println!("[0] Hello from Rust!");
+    unsafe {
+        uart::init();
+    }
     test::start_tests();
+    send_it_by_uart();
     it_works();
     it_does_not_work();
     test::success();
@@ -152,6 +157,15 @@ fn fake_helper(arg1: u32, arg2: u32) -> u32 {
 
 fn it_does_not_work() {
     assert_eq!(2 + 2, 5);
+}
+
+fn send_it_by_uart() {
+    unsafe {
+        uart::put_char(0xF0);
+        uart::put_char(0x9F);
+        uart::put_char(0x9A);
+        uart::put_char(0x80);
+    }
 }
 
 // -------------------------------------------------------------------------------------------------
