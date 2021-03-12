@@ -15,7 +15,7 @@ const MINI_UART_IIR_TX_FIFO_ENABLE: u32 = 0x00000040;
 
 const MINI_UART_LCR_8BIT: u32 = 0x00000003;
 
-const MINI_UART_LSR_RX_READY: u32 = 0x00000001;
+// const MINI_UART_LSR_RX_READY: u32 = 0x00000001;
 // const MINI_UART_LSR_TX_READY: u32 = 0x00000010;
 const MINI_UART_LSR_TX_EMPTY: u32 = 0x00000020;
 
@@ -40,6 +40,8 @@ pub struct Uart {
 }
 static mut UART: *mut Uart = MINI_UART_BASE as u32 as *mut Uart as *mut Uart;
 
+static mut INITIALIZED: bool = false;
+
 /* Key detail from the Broadcom Peripherals data sheet p.10
 *
 * GPIO pins should be set up first the before enabling the UART.
@@ -49,8 +51,7 @@ static mut UART: *mut Uart = MINI_UART_BASE as u32 as *mut Uart as *mut Uart;
 * that will be seen as a start bit and the UART will start receiving 0x00-characters.
 * [...] The result will be that the FIFO is full and overflowing in no time flat.
 */
-#[no_mangle]
-pub unsafe extern "C" fn uart_init() {
+pub unsafe fn init() {
     let gpio = GPIO_BASE as *const u32;
     let fsel_1 = gpio.offset(1) as *mut u32;
 
@@ -86,54 +87,66 @@ pub unsafe extern "C" fn uart_init() {
         &mut (*UART).cntl as *mut u32,
         (MINI_UART_CNTL_TX_ENABLE | MINI_UART_CNTL_RX_ENABLE) as u32,
     );
+    INITIALIZED = true;
 }
 
-#[no_mangle]
-unsafe fn recieve() -> u8 {
-    while !has_char() {}
-    (*UART).data as u8
-}
-
-#[no_mangle]
 unsafe fn send(byte: u8) {
-    while (*UART).lsr & MINI_UART_LSR_TX_EMPTY as u32 == 0 {}
+    while (*UART).lsr & MINI_UART_LSR_TX_EMPTY == 0 {}
     core::ptr::write_volatile(&mut (*UART).data as *mut u32, byte as u32 & 0xff_u32);
 }
 
-#[no_mangle]
-unsafe fn flush() {
-    while (*UART).lsr & MINI_UART_LSR_TX_EMPTY as u32 == 0 {}
-}
-
-#[no_mangle]
-unsafe fn has_char() -> bool {
-    (*UART).lsr & MINI_UART_LSR_RX_READY != 0
-}
-
-#[no_mangle]
-unsafe fn get_char() -> u8 {
-    let mut character = recieve();
-    if character as char == '\r' {
-        character = 0xa;
-    }
-    character
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn put_char(ch: u8) -> u8 {
+pub unsafe fn put_char(character: u8) -> u8 {
     // force initialize if not yet done
     // this fallback is special case for uart_putchar as
     // without it, all output (print/assert) can fail and no
     // clear indication because of self-referential nature of problem
-    if ch as char == '\n' {
+    if !INITIALIZED {
+        init();
+    }
+
+    // convert newline to CR LF sequence by inserting CR
+    if character == b'\n' {
         send(b'\r');
     }
-    send(ch);
-    ch
+    send(character);
+    character
 }
 
-#[no_mangle]
-pub unsafe extern "C" fn put_string(str: *const u8) -> u32 {
+/*
+unsafe fn recieve() -> u8 {
+    while !has_char() {}
+    (*UART).data as u8
+}
+ */
+
+/*
+unsafe fn flush() {
+    while (*UART).lsr & MINI_UART_LSR_TX_EMPTY as u32 == 0 {}
+}
+
+unsafe fn has_char() -> bool {
+    (*UART).lsr & MINI_UART_LSR_RX_READY == 1
+}
+
+// RE: line endings
+// canonical use is '\n' newline as sole line terminator (both read/write)
+// but connected terminal may expect to receive a CR-LF sequence from Pi
+// and may send a CR to Pi for return/enter key. get_char and put_char
+// internally convert chars, client can simply send/receive newline
+// Use send/recieve to send/receive raw byte, no conversion
+
+unsafe fn get_char() -> u8 {
+    let mut character = recieve();
+    if character == b'\r' {
+        character = b'\n'; // convert CR to newline
+    }
+    character
+}
+ */
+
+/*
+
+pub unsafe fn put_string(str: *const u8) -> u32 {
     let mut n: u32 = 0;
     while *str.offset(n as isize) != 0 {
         put_char(*str.offset(n as isize) as u8);
@@ -141,3 +154,5 @@ pub unsafe extern "C" fn put_string(str: *const u8) -> u32 {
     }
     n
 }
+
+ */

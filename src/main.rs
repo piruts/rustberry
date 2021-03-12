@@ -133,7 +133,8 @@ mod uart;
 pub extern "C" fn main() -> ! {
     println!("[0] Hello from Rust!");
     unsafe {
-        uart::put_string(8 as *const u8);
+        uart::init();
+        uart::put_char(b'A');
     }
     test::start_tests();
     it_works();
