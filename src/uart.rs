@@ -87,7 +87,7 @@ pub unsafe fn init() {
     INITIALIZED = true;
 }
 
-unsafe fn send(byte: u8) -> () {
+unsafe fn send(byte: u8) {
     while (*UART).lsr & MINI_UART_LSR_TX_EMPTY == 0 {}
     core::ptr::write_volatile(&mut (*UART).data, byte as u32 & 0xff_u32);
 }
