@@ -159,6 +159,7 @@ fn it_does_not_work() {
 
 fn test_gpio() {
     unsafe {
+        uart::put_char(0xF0);
         gpio::set_output(16);
         gpio::set_output(17);
         gpio::write(16, 1);

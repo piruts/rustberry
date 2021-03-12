@@ -22,7 +22,8 @@ pub unsafe fn set_input(pin: u32) {
     set_function(pin, 0);
 }
 
-pub unsafe fn set_output(pin: u32) { 
+#[allow(unused)]
+pub unsafe fn set_output(pin: u32) {
     set_function(pin, 1);
 }
 
@@ -37,7 +38,7 @@ pub unsafe fn write(pin: u32, value: u32) {
     }
 }
 
-pub unsafe fn read(pin: u32) -> bool {
+pub unsafe fn read(pin: u32) -> u32 {
     let lev: *mut u32 = (GPIO_LEV0 as u32 + (pin / 32) * 4) as *mut u32;
-    (core::ptr::read_volatile(lev) & (pin % 32)) != 0
+    return (core::ptr::read_volatile(lev) >> (pin % 32)) & 0b1;
 }
