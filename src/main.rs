@@ -123,7 +123,6 @@ mod print;
 mod runtime_init;
 mod test;
 mod gpio;
-use gpio::*;
 
 /// Early init code.
 ///
@@ -160,11 +159,15 @@ fn it_does_not_work() {
 
 fn test_gpio() {
     unsafe {
-        gpio_set_output(16);
-        gpio_write(16, 1);
-        gpio_read(16);
+        gpio::set_output(16);
+        gpio::set_output(17);
+        gpio::write(16, 1);
+        gpio::write(17, 0);
+        gpio::read(16);
+        gpio::read(17);
     }
-    assert_eq!(unsafe {gpio_read(16)}, 1);
+    assert_eq!(unsafe {gpio::read(16)}, true);
+    //assert_eq!(unsafe {gpio::read(17)}, false);
 }
 // -------------------------------------------------------------------------------------------------
 // tests start here
