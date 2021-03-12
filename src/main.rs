@@ -162,6 +162,7 @@ fn test_gpio() {
     unsafe {
         gpio_set_output(16);
         gpio_write(16, 1);
+        gpio_read(16);
     }
     assert_eq!(unsafe {gpio_read(16)}, 1);
 }
