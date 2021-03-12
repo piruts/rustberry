@@ -114,6 +114,8 @@
 #![no_main]
 #![no_std]
 
+use core::fmt;
+
 mod bsp;
 mod console;
 mod cpu;
@@ -138,7 +140,10 @@ pub extern "C" fn main() -> ! {
     test::start_tests();
     send_it_by_uart();
     it_works();
-    it_does_not_work();
+    let debug = format!("{:?}", format_args!("{} foo {:?}", 1, 2));
+    let display = format!("{}", format_args!("{} foo {:?}", 1, 2));
+    assert_eq!("1 foo 2", display);
+    assert_eq!(display, debug);
     test::success();
     cpu::wait_forever();
 }

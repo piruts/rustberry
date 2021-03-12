@@ -109,6 +109,15 @@ pub unsafe fn put_char(character: u8) -> u8 {
     character
 }
 
+pub unsafe fn put_string(str: *const u8) -> u32 {
+    let mut n: u32 = 0;
+    while *str.offset(n as isize) != 0 {
+        put_char(*str.offset(n as isize) as u8);
+        n += 1
+    }
+    n
+}
+
 /*
 unsafe fn recieve() -> u8 {
     while !has_char() {}
@@ -139,17 +148,4 @@ unsafe fn get_char() -> u8 {
     }
     character
 }
- */
-
-/*
-
-pub unsafe fn put_string(str: *const u8) -> u32 {
-    let mut n: u32 = 0;
-    while *str.offset(n as isize) != 0 {
-        put_char(*str.offset(n as isize) as u8);
-        n += 1
-    }
-    n
-}
-
  */

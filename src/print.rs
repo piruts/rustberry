@@ -4,12 +4,18 @@
 
 //! Printing.
 
-use crate::{bsp, console};
+use crate::{bsp, console, uart};
 use core::fmt;
 
 //--------------------------------------------------------------------------------------------------
 // Public Code
 //--------------------------------------------------------------------------------------------------
+
+pub fn print(string: String) -> (){
+    unsafe {
+        uart::put_string(string.as_bytes);
+    }
+}
 
 #[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {

@@ -21,7 +21,7 @@ FEATURES      = bsp_rpiA
 COMPILER_ARGS = --target=$(TARGET).json \
     --features $(FEATURES)         \
     --release                      \
-    -Z build-std=core
+    -Z build-std=core,alloc
 
 RUSTC_CMD   = cargo rustc $(COMPILER_ARGS)
 DOC_CMD     = cargo doc $(COMPILER_ARGS)
