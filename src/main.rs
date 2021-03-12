@@ -116,13 +116,13 @@
 
 mod bsp;
 mod console;
-pub mod cpu;
+mod cpu;
 mod memory;
 mod panic_wait;
 mod print;
 mod runtime_init;
 mod test;
-mod gpio;
+mod uart;
 
 /// Early init code.
 ///
@@ -132,10 +132,13 @@ mod gpio;
 #[no_mangle]
 pub extern "C" fn main() -> ! {
     println!("[0] Hello from Rust!");
+    unsafe {
+        uart::init();
+    }
     test::start_tests();
-//    it_works();
-//    it_does_not_work();
-    test_gpio();
+    send_it_by_uart();
+    it_works();
+    it_does_not_work();
     test::success();
     cpu::wait_forever();
 }
@@ -143,7 +146,7 @@ pub extern "C" fn main() -> ! {
 // -------------------------------------------------------------------------------------------------
 // tests start here
 // -------------------------------------------------------------------------------------------------
-/*
+
 fn it_works() {
     assert_eq!(fake_helper(2, 2), 4);
 }
@@ -155,21 +158,16 @@ fn fake_helper(arg1: u32, arg2: u32) -> u32 {
 fn it_does_not_work() {
     assert_eq!(2 + 2, 5);
 }
-*/
 
-fn test_gpio() {
+fn send_it_by_uart() {
     unsafe {
         uart::put_char(0xF0);
-        gpio::set_output(16);
-        gpio::set_output(17);
-        gpio::write(16, 1);
-        gpio::write(17, 0);
-        gpio::read(16);
-        gpio::read(17);
+        uart::put_char(0x9F);
+        uart::put_char(0x9A);
+        uart::put_char(0x80);
     }
-    assert_eq!(unsafe {gpio::read(16)}, true);
-    //assert_eq!(unsafe {gpio::read(17)}, false);
 }
+
 // -------------------------------------------------------------------------------------------------
 // tests start here
 // -------------------------------------------------------------------------------------------------

@@ -45,7 +45,7 @@ all: $(KERNEL_BIN)
 elf: $(KERNEL_ELF)
 
 run: $(KERNEL_BIN)
-	rpi-run.py $(PROJECT).bin
+	./bin/rpi-run.py -p -t 2 $(PROJECT).bin
 
 doc:
 	$(DOC_CMD) --document-private-items --open
