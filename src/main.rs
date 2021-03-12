@@ -116,15 +116,12 @@
 
 mod bsp;
 mod console;
-mod cpu;
+pub mod cpu;
 mod memory;
 mod panic_wait;
 mod print;
 mod runtime_init;
-
-fn it_works() {
-    assert_eq!(2 + 2, 5);
-}
+mod test;
 
 /// Early init code.
 ///
@@ -134,7 +131,29 @@ fn it_works() {
 #[no_mangle]
 pub extern "C" fn main() -> ! {
     println!("[0] Hello from Rust!");
+    test::start_tests();
     it_works();
+    it_does_not_work();
+    test::success();
     cpu::wait_forever();
-    // panic!("Stopping here.");
 }
+
+// -------------------------------------------------------------------------------------------------
+// tests start here
+// -------------------------------------------------------------------------------------------------
+
+fn it_works() {
+    assert_eq!(fake_helper(2, 2), 4);
+}
+
+fn fake_helper(arg1: u32, arg2: u32) -> u32 {
+    arg1 + arg2
+}
+
+fn it_does_not_work() {
+    assert_eq!(2 + 2, 5);
+}
+
+// -------------------------------------------------------------------------------------------------
+// tests start here
+// -------------------------------------------------------------------------------------------------
