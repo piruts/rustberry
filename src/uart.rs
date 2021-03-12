@@ -40,6 +40,8 @@ pub struct Uart {
 }
 static mut UART: *mut Uart = MINI_UART_BASE as u32 as *mut Uart as *mut Uart;
 
+// let mailbox = unsafe { &mut *(MAILBOX_BASE as *mut MailboxT) };
+
 static mut INITIALIZED: bool = false;
 
 /* Key detail from the Broadcom Peripherals data sheet p.10
@@ -55,44 +57,39 @@ pub unsafe fn init() {
     let gpio = GPIO_BASE as *const u32;
     let fsel_1 = gpio.offset(1) as *mut u32;
 
-    // configure tx (14) as alt fn 45
+    // configure tx (14) and rx (15) as alt fn 5
     {
-        *(fsel_1) = 1 << 11;
-    }
-
-    // configure rx (15) as alt fn 5
-    {
-        *(fsel_1) = 1 << 14;
+        *(fsel_1) = 1001 << 10;
     }
 
     // must enable mini-uart before accessing registers
     let aux: *mut u32 = AUX_ENABLES as u32 as *mut u32;
     *aux |= AUX_ENABLE as u32;
 
-    core::ptr::write_volatile(&mut (*UART).ier as *mut u32, 0_u32); // wait for char
-    core::ptr::write_volatile(&mut (*UART).cntl as *mut u32, 0_u32);
-    core::ptr::write_volatile(&mut (*UART).lcr as *mut u32, MINI_UART_LCR_8BIT as u32);
-    core::ptr::write_volatile(&mut (*UART).mcr as *mut u32, 0_u32);
-    core::ptr::write_volatile(&mut (*UART).ier as *mut u32, 0_u32);
+    core::ptr::write_volatile(&mut (*UART).ier, 0_u32); // wait for char
+    core::ptr::write_volatile(&mut (*UART).cntl, 0_u32);
+    core::ptr::write_volatile(&mut (*UART).lcr, MINI_UART_LCR_8BIT as u32);
+    core::ptr::write_volatile(&mut (*UART).mcr, 0_u32);
+    core::ptr::write_volatile(&mut (*UART).ier, 0_u32);
     core::ptr::write_volatile(
-        &mut (*UART).iir as *mut u32,
+        &mut (*UART).iir,
         (MINI_UART_IIR_RX_FIFO_CLEAR
             | MINI_UART_IIR_RX_FIFO_ENABLE
             | MINI_UART_IIR_TX_FIFO_CLEAR
             | MINI_UART_IIR_TX_FIFO_ENABLE) as u32,
     );
     // baud rate ((250,000,000/115200)/8)-1 = 270
-    core::ptr::write_volatile(&mut (*UART).baud as *mut u32, 270_u32);
+    core::ptr::write_volatile(&mut (*UART).baud, 270_u32);
     core::ptr::write_volatile(
-        &mut (*UART).cntl as *mut u32,
+        &mut (*UART).cntl,
         (MINI_UART_CNTL_TX_ENABLE | MINI_UART_CNTL_RX_ENABLE) as u32,
     );
     INITIALIZED = true;
 }
 
-unsafe fn send(byte: u8) {
+unsafe fn send(byte: u8) -> () {
     while (*UART).lsr & MINI_UART_LSR_TX_EMPTY == 0 {}
-    core::ptr::write_volatile(&mut (*UART).data as *mut u32, byte as u32 & 0xff_u32);
+    core::ptr::write_volatile(&mut (*UART).data, byte as u32 & 0xff_u32);
 }
 
 pub unsafe fn put_char(character: u8) -> u8 {
