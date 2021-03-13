@@ -92,17 +92,10 @@ pub unsafe fn fb_get_pitch() -> u32 {
 }
 
 pub fn test() {
-    let gpio = GPIO_BASE as *const u32;
-    let led_on = unsafe { gpio.offset(8) as *mut u32 };
      
     unsafe {
         fb_init(100, 100, 4, FB_DOUBLEBUFFER);
         
-        if fb_swap_buffer() {
-            *(led_on) = 1 << 15;
-        }
+        assert!(fb_swap_buffer())
     }
-
-    loop {}
 }
-

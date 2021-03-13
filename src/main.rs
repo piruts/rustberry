@@ -136,9 +136,6 @@ mod uart;
 #[no_mangle]
 pub extern "C" fn main() -> ! {
     println!("[0] Hello from Rust!");
-    let gpio = GPIO_BASE as *const u32;
-    let led_on = unsafe { gpio.offset(8) as *mut u32 };
-    let led_off = unsafe { gpio.offset(11) as *mut u32 };
     
     fb::test();
     unsafe {
