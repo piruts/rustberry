@@ -2,7 +2,7 @@
 ##
 ## Copyright (c) 2018-2021 Andre Richter <andre.o.richter@gmail.com>
 ## 
-## Edited 2021 by Flynn Dreilniger <flynnd@stanford.edu> and Ashish Rao <aprao@stanford.edu>
+## Edited 2021 by Flynn Dreilinger <flynnd@stanford.edu> and Ashish Rao <aprao@stanford.edu>
 
 PROJECT           = rustberry
 TARGET            = armv6kz-none-eabi
@@ -45,7 +45,7 @@ all: $(KERNEL_BIN)
 elf: $(KERNEL_ELF)
 
 run: $(KERNEL_BIN)
-	rpi-run.py $(PROJECT).bin
+	./bin/rpi-run.py -p -t 2 $(PROJECT).bin
 
 doc:
 	$(DOC_CMD) --document-private-items --open
