@@ -4,6 +4,10 @@ const GPIO_SET0: *mut u32 = (GPIO_BASE + 0x1C) as *mut u32;
 const GPIO_CLR0: *mut u32 = (GPIO_BASE + 0x28) as *mut u32;
 const GPIO_LEV0: *mut u32 = (GPIO_BASE + 0x34) as *mut u32;
 
+extern "C" {
+    pub fn dev_barrier();
+}
+
 pub unsafe fn set_function(pin: u32, function: u32) {
     let fsel: *mut u32 = (GPIO_FSEL0 as u32 + (pin / 10) * 4) as *mut u32;
 
@@ -40,5 +44,6 @@ pub unsafe fn write(pin: u32, value: u32) {
 
 pub unsafe fn read(pin: u32) -> u32 {
     let lev: *mut u32 = (GPIO_LEV0 as u32 + (pin / 32) * 4) as *mut u32;
+    dev_barrier();
     return (core::ptr::read_volatile(lev) >> (pin % 32)) & 0b1;
 }

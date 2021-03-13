@@ -123,6 +123,7 @@ mod print;
 mod runtime_init;
 mod test;
 mod uart;
+mod gpio;
 
 /// Early init code.
 ///
@@ -139,6 +140,7 @@ pub extern "C" fn main() -> ! {
     send_it_by_uart();
     it_works();
     it_does_not_work();
+    gpio_test();
     test::success();
     cpu::wait_forever();
 }
@@ -165,6 +167,15 @@ fn send_it_by_uart() {
         uart::put_char(0x9F);
         uart::put_char(0x9A);
         uart::put_char(0x80);
+    }
+}
+
+fn gpio_test() {
+    unsafe {
+        gpio::set_output(16);
+        gpio::write(16, 1);
+        assert_eq!(gpio::read(16), 1);
+        assert_eq!(gpio::get_function(16), 1);
     }
 }
 
