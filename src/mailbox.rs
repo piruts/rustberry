@@ -4,6 +4,8 @@ const MAILBOX_EMPTY: u32 = 1<<30;
 const MAILBOX_MAXCHANNEL: u32 = 16;
 const GPU_NOCACHE: u32 = 0x40000000;
 
+pub const MAILBOX_FRAMEBUFFER: u32 = 1;
+
 #[repr(C)]
 struct MailboxT {
     read: u32,
