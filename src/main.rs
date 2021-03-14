@@ -145,7 +145,7 @@ pub extern "C" fn main() -> ! {
     test::start_tests();
     send_it_by_uart();
     it_works();
-    it_does_not_work();
+//    it_does_not_work();
     gpio_test();
     test::success();
     cpu::wait_forever();
@@ -162,11 +162,11 @@ fn it_works() {
 fn fake_helper(arg1: u32, arg2: u32) -> u32 {
     arg1 + arg2
 }
-
+/*
 fn it_does_not_work() {
     assert_eq!(2 + 2, 5);
 }
-
+*/
 fn send_it_by_uart() {
     unsafe {
         uart::put_char(0xF0);
@@ -179,9 +179,18 @@ fn send_it_by_uart() {
 fn gpio_test() {
     unsafe {
         gpio::set_output(16);
+        gpio::set_output(17);
+        gpio::set_input(18);
         gpio::write(16, 1);
+        gpio::write(17, 0);
         assert_eq!(gpio::read(16), 1);
         assert_eq!(gpio::get_function(16), 1);
+        assert_eq!(gpio::read(17), 0);
+        assert_eq!(gpio::get_function(17), 1);
+        assert_eq!(gpio::get_function(18), 0);
+        gpio::write(16, 0);
+        assert_eq!(gpio::read(16), 0);
+
     }
 }
 

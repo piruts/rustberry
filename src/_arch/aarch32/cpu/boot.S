@@ -20,4 +20,3 @@ dev_barrier:
 dsb:
 	mcr p15, 0, r0, c7, c10, 4
 	bx lr
-
