@@ -135,11 +135,11 @@ mod uart;
 #[no_mangle]
 pub extern "C" fn main() -> ! {
     println!("[0] Hello from Rust!");
+    unsafe { uart::init() };
     send_it_by_uart();
     test::start_tests();
     
     unsafe {
-        uart::init();
         let res = gl::test();
 
         match res {
