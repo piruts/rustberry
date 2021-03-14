@@ -16,7 +16,7 @@ LINKER_FILE       = src/bsp/raspberrypi/link.ld
 export LINKER_FILE
 
 RUSTFLAGS          = -C link-arg=-T$(LINKER_FILE)
-RUSTFLAGS_PEDANTIC = $(RUSTFLAGS) -D warnings -D missing_docs
+RUSTFLAGS_PEDANTIC = $(RUSTFLAGS) #-D warnings -D missing_docs
 
 FEATURES      = bsp_rpiA
 COMPILER_ARGS = --target=$(TARGET).json \
