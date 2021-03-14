@@ -71,7 +71,7 @@ pub unsafe fn fb_swap_buffer() -> bool {
 
 pub unsafe fn fb_get_draw_buffer() -> u32 {
     if BUFMODE == FB_SINGLEBUFFER { return FB.framebuffer; }
-    let row_offset: u32 = FB.y_offset;
+    let row_offset: u32 = (FB.y_offset + FB.height) % (2 * FB.height);
     return FB.framebuffer + row_offset*fb_get_pitch();
 }
 

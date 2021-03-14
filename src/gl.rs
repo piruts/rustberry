@@ -3,7 +3,7 @@
 use core::convert::TryInto;
 
 use embedded_graphics::{
-    pixelcolor::{Bgr888, RgbColor},
+    pixelcolor::{Bgr888},
     prelude::*,
     primitives::{Circle, Triangle},
     style::PrimitiveStyle,
@@ -11,9 +11,7 @@ use embedded_graphics::{
 };
 
 
-struct Display {
-
-}
+struct Display {}
 
 impl DrawTarget<Bgr888> for Display {
     type Error = core::convert::Infallible;
@@ -81,11 +79,11 @@ impl DrawTarget<Bgr888> for Display {
 
 
 pub unsafe fn test() -> Result<(), core::convert::Infallible> {
-    fb::fb_init(640, 512, 4, fb::FB_SINGLEBUFFER);
+    fb::fb_init(640, 512, 4, fb::FB_DOUBLEBUFFER);
     let mut display = Display{};
    
-    let cyan = PrimitiveStyle::with_fill(RgbColor::CYAN);
-    let magenta = PrimitiveStyle::with_fill(RgbColor::MAGENTA);
+    let cyan = PrimitiveStyle::with_fill(Bgr888::CYAN);
+    let magenta = PrimitiveStyle::with_fill(Bgr888::MAGENTA);
     let amber = PrimitiveStyle::with_fill(Bgr888::new(0xff, 0xbf, 0x0));
     let yellow = PrimitiveStyle::with_fill(Bgr888::YELLOW);
 
