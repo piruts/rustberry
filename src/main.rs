@@ -119,7 +119,6 @@
 #![reexport_test_harness_main = "test_main"]
 
 mod bsp;
-mod console;
 mod cpu;
 mod fb;
 mod led_test_harness;
