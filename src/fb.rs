@@ -58,7 +58,7 @@ pub unsafe fn fb_init(width: u32, height: u32,
     FB.total_bytes = 0;
     
     let config_addr: u32 = (&FB as *const _) as u32;
-    return mailbox_request(MAILBOX_FRAMEBUFFER, config_addr);
+    mailbox_request(MAILBOX_FRAMEBUFFER, config_addr)
 }
 
 pub unsafe fn fb_swap_buffer() -> bool {
@@ -66,36 +66,28 @@ pub unsafe fn fb_swap_buffer() -> bool {
     FB.y_offset = (FB.y_offset + FB.height) % (2*FB.height);
     
     let config_addr: u32 = (&FB as *const _) as u32;
-    return mailbox_request(MAILBOX_FRAMEBUFFER, config_addr);
+    mailbox_request(MAILBOX_FRAMEBUFFER, config_addr)
 }
 
 pub unsafe fn fb_get_draw_buffer() -> u32 {
     if BUFMODE == FB_SINGLEBUFFER { return FB.framebuffer; }
     let row_offset: u32 = (FB.y_offset + FB.height) % (2 * FB.height);
-    return FB.framebuffer + row_offset*fb_get_pitch();
+    FB.framebuffer + row_offset*fb_get_pitch()
 }
 
 pub unsafe fn fb_get_width() -> u32 {
-    return FB.width;
+    FB.width
 }
 
 pub unsafe fn fb_get_height() -> u32 {
-    return FB.height;
+    FB.height
 }
 
 pub unsafe fn fb_get_depth() -> u32 {
-    return FB.bit_depth / 8;
+    FB.bit_depth / 8
 }
 
 pub unsafe fn fb_get_pitch() -> u32 {
-    return FB.pitch;
+    FB.pitch
 }
 
-/*pub fn test() {
-     
-    unsafe {
-        fb_init(100, 100, 4, FB_DOUBLEBUFFER);
-        
-        assert!(fb_swap_buffer())
-    }
-}*/

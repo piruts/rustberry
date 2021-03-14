@@ -19,7 +19,7 @@ struct MailboxT {
 
 pub fn mailbox_request(channel: u32, addr: u32) -> bool {
     if !mailbox_write(channel, addr) { return false };
-    return mailbox_read(channel) == 0;
+    mailbox_read(channel) == 0
 }
 
 pub fn mailbox_read(channel: u32) -> u32 {
@@ -30,11 +30,11 @@ pub fn mailbox_read(channel: u32) -> u32 {
     unsafe {
         loop {
             loop {
-                let stat = core::ptr::read_volatile(&mut mailbox.status);
-                if !((stat & MAILBOX_EMPTY) > 0) { break; }
+                let stat = core::ptr::read_volatile(&mailbox.status);
+                if (stat & MAILBOX_EMPTY) == 0 { break; }
             }
                 
-            let data: u32 = core::ptr::read_volatile(&mut mailbox.read);
+            let data: u32 = core::ptr::read_volatile(&mailbox.read);
             if (data & 0xF) == channel {
                 return data >> 4;
             }
@@ -49,8 +49,8 @@ pub fn mailbox_write(channel: u32, mut addr: u32) -> bool {
    
     unsafe {
         loop {
-            let stat = core::ptr::read_volatile(&mut mailbox.status);
-            if !((stat & MAILBOX_FULL) > 0) { break };
+            let stat = core::ptr::read_volatile(&mailbox.status);
+            if (stat & MAILBOX_FULL) == 0 { break };
         }
     }
 
@@ -60,6 +60,6 @@ pub fn mailbox_write(channel: u32, mut addr: u32) -> bool {
         core::ptr::write_volatile(&mut mailbox.write, addr | channel);
     }
     
-    return true;
+    true
 }
 
