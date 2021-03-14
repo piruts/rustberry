@@ -15,10 +15,10 @@ struct FbConfigT {
 }
 
 
-const FB_SINGLEBUFFER: u32 = 0;
-const FB_DOUBLEBUFFER: u32 = 1;
+pub const FB_SINGLEBUFFER: u32 = 0;
+pub const FB_DOUBLEBUFFER: u32 = 1;
 
-const GPIO_BASE: u32 = 0x20200000;
+//const GPIO_BASE: u32 = 0x20200000;
 
 static mut FB: FbConfigT = FbConfigT {
     width: 100,
@@ -91,11 +91,11 @@ pub unsafe fn fb_get_pitch() -> u32 {
     return FB.pitch;
 }
 
-pub fn test() {
+/*pub fn test() {
      
     unsafe {
         fb_init(100, 100, 4, FB_DOUBLEBUFFER);
         
         assert!(fb_swap_buffer())
     }
-}
+}*/

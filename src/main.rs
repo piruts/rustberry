@@ -123,8 +123,7 @@ mod memory;
 mod panic_wait;
 mod print;
 mod runtime_init;
-//mod mailbox;
-mod fb;
+mod gl;
 mod test;
 mod uart;
 
@@ -136,17 +135,30 @@ mod uart;
 #[no_mangle]
 pub extern "C" fn main() -> ! {
     println!("[0] Hello from Rust!");
+    send_it_by_uart();
+    test::start_tests();
     
-    fb::test();
     unsafe {
         uart::init();
+        let res = gl::test();
+
+        match res {
+            Ok(_v) => { 
+                it_works();
+                test::success();
+                cpu::wait_forever();
+            }
+            Err(_e) => { 
+                it_does_not_work(); 
+                cpu::wait_forever();
+            }
+        }
     }
-    test::start_tests();
-    send_it_by_uart();
-    it_works();
-    it_does_not_work();
-    test::success();
-    cpu::wait_forever();
+    
+    //it_works();
+    //it_does_not_work();
+    //test::success();
+    //cpu::wait_forever();
 }
 
 // -------------------------------------------------------------------------------------------------
