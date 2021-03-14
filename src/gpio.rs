@@ -8,48 +8,47 @@ extern "C" {
     pub fn dev_barrier();
 }
 
-pub unsafe fn set_function(pin: u32, function: u32) {
+pub unsafe fn set_function(pin: isize, function: u32) {
     dev_barrier();
-    let fsel: *mut u32 = (GPIO_FSEL0 as u32 + (pin / 10) * 4) as *mut u32;
-
-    core::ptr::write_volatile(fsel, core::ptr::read_volatile(fsel) & !(0b111 << ((pin % 10) * 3)));
-    core::ptr::write_volatile(fsel, core::ptr::read_volatile(fsel) | (function << ((pin % 10) * 3)));
+    let fsel: *mut u32 = GPIO_FSEL0.offset(pin / 10);
+    fsel.write_volatile(fsel.read_volatile() & !(0b111 << ((pin % 10) * 3)));
+    fsel.write_volatile(fsel.read_volatile() | (function << ((pin % 10) * 3)));
     dev_barrier();
 }
 
 #[allow(unused)]
-pub unsafe fn get_function(pin: u32) -> u32 {
+pub unsafe fn get_function(pin: isize) -> u32 {
     dev_barrier();
-    let fsel: *mut u32 = (GPIO_FSEL0 as u32 + (pin / 10) * 4) as *mut u32;
-    return (core::ptr::read_volatile(fsel) >> ((pin % 10) * 3)) & 0b111;
+    let fsel: *mut u32 = GPIO_FSEL0.offset(pin / 10);
+    return (fsel.read_volatile() >> ((pin % 10) * 3)) & 0b111;
 }
 
 #[allow(unused)]
-pub unsafe fn set_input(pin: u32) { 
+pub unsafe fn set_input(pin: isize) { 
     set_function(pin, 0);
 }
 
 #[allow(unused)]
-pub unsafe fn set_output(pin: u32) {
+pub unsafe fn set_output(pin: isize) {
     set_function(pin, 1);
 }
 
 #[allow(unused)]
-pub unsafe fn write(pin: u32, value: u32) {
+pub unsafe fn write(pin: isize, value: u32) {
     dev_barrier();
     if value == 0 {
-        let clr: *mut u32 = (GPIO_CLR0 as u32 + (pin / 32) * 4) as *mut u32;
-        core::ptr::write_volatile(clr, 1 << (pin % 32));
+        let clr: *mut u32 = GPIO_CLR0.offset(pin / 32);
+        clr.write_volatile(1 << (pin % 32));
     } else if value == 1 {
-        let set: *mut u32 = (GPIO_SET0 as u32 + (pin / 32) * 4) as *mut u32;
-        core::ptr::write_volatile(set, 1 << (pin % 32));
+        let set: *mut u32 = GPIO_SET0.offset(pin / 32);
+        set.write_volatile(1 << (pin % 32));
     }
     dev_barrier();
 }
 
 #[allow(unused)]
-pub unsafe fn read(pin: u32) -> u32 {
+pub unsafe fn read(pin: isize) -> u32 {
     dev_barrier();
-    let lev: *mut u32 = (GPIO_LEV0 as u32 + (pin / 32) * 4) as *mut u32;
-    return (core::ptr::read_volatile(lev) >> (pin % 32)) & 0b1;
+    let lev: *mut u32 = GPIO_LEV0.offset(pin / 32);
+    return (lev.read_volatile() >> (pin % 32)) & 0b1;
 }
