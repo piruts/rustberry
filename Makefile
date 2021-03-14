@@ -7,7 +7,7 @@
 PROJECT           = rustberry
 TARGET            = armv6kz-none-eabi
 BIN        		  = $(PROJECT).bin
-TEST_BIN		  = test_$(PROJECT).bin
+TEST_BIN		  = test-$(PROJECT).bin
 OBJDUMP_BINARY    = arm-none-eabi-objdump
 NM_BINARY         = arm-none-eabi-nm
 LINKER_FILE       = src/bsp/raspberrypi/link.ld
@@ -25,7 +25,7 @@ COMPILER_ARGS = --target=$(TARGET).json \
     -Z build-std=core,alloc
 
 RUSTC_CMD   = cargo rustc $(COMPILER_ARGS)
-TEST_CMD    = cargo test --no-run $(COMPILER_ARGS)
+TEST_CMD    = cargo test --verbose --no-run --message-format=json $(COMPILER_ARGS)
 DOC_CMD     = cargo doc $(COMPILER_ARGS)
 CLIPPY_CMD  = cargo clippy $(COMPILER_ARGS)
 CHECK_CMD   = cargo check $(COMPILER_ARGS)
@@ -34,15 +34,20 @@ OBJCOPY_CMD = rust-objcopy \
     -O binary
 
 ELF = target/$(TARGET)/release/$(PROJECT)
-TEST_ELF = target/$(TARGET)/release/deps/rustberry-0e28dcea00304dde
+
+TEST_ELF = target/$(TARGET)/release/deps/$(PROJECT)-*[!.]?
 
 .PHONY: all $(ELF) $(TEST_ELF) $(BIN) $(TEST_BIN) doc clippy clean readelf objdump nm check
+
+always_clean_and_format: clean
+	cargo fmt
 
 $(ELF):
 	RUSTFLAGS="$(RUSTFLAGS_PEDANTIC)" $(RUSTC_CMD)
 
 $(TEST_ELF):
 	RUSTFLAGS="$(RUSTFLAGS_PEDANTIC)" $(TEST_CMD)
+	ln -s target/$(TARGET)/release/deps/$(PROJECT)-*[!.]? target/$(TARGET)/release/test-$(PROJECT)
 
 $(BIN): $(ELF)
 	@$(OBJCOPY_CMD) $(ELF) $(BIN)
@@ -55,10 +60,10 @@ elf: $(ELF)
 
 test_elf: $(TEST_ELF)
 
-run: $(BIN)
+run: always_clean_and_format $(BIN)
 	./bin/rpi-run.py -p -t 2 $(BIN)
 
-test: $(TEST_BIN)
+test: always_clean_and_format $(TEST_BIN)
 	./bin/rpi-run.py -p -t 2 $(TEST_BIN)
 
 doc:
@@ -68,7 +73,7 @@ clippy:
 	RUSTFLAGS="$(RUSTFLAGS_PEDANTIC)" $(CLIPPY_CMD)
 
 clean:
-	rm -rf target $(BIN)
+	rm -rf target $(BIN) $(TEST_BIN)
 
 readelf: $(ELF)
 	readelf --headers $(ELF)
