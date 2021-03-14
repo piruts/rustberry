@@ -1,4 +1,5 @@
 use alloc::alloc::{GlobalAlloc, Layout};
+use alloc::boxed::Box; //, rc::Rc, vec, vec::Vec};
 use core::ptr::null_mut;
 use fixed_size_block::FixedSizeBlockAllocator;
 
@@ -64,4 +65,9 @@ impl<A> Locked<A> {
 /// Requires that `align` is a power of two.
 fn align_up(addr: usize, align: usize) -> usize {
     (addr + align - 1) & !(align - 1)
+}
+
+#[test_case]
+fn test_alloc() {
+    let x = Box::new(41);
 }

@@ -34,5 +34,8 @@ unsafe fn zero_bss() {
 pub unsafe fn runtime_init() -> ! {
     zero_bss();
 
-    crate::main()
+    #[cfg(test)]
+    crate::test_main();
+
+    crate::main();
 }

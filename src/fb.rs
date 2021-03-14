@@ -97,6 +97,7 @@ pub unsafe fn fb_get_pitch() -> u32 {
     return FB.pitch;
 }
 
+#[test_case]
 pub fn test() {
     unsafe {
         fb_init(100, 100, 4, FB_DOUBLEBUFFER);
