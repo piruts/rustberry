@@ -121,6 +121,7 @@
 mod bsp;
 mod cpu;
 mod fb;
+mod gpio;
 mod led_test_harness;
 mod mailbox;
 mod memory;

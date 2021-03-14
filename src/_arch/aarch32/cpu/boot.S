@@ -11,3 +11,12 @@ _start:
     mov     fp, #0
     bl      runtime_init
 hang: b hang
+
+.globl dev_barrier
+dev_barrier:
+	b dsb
+
+.globl dsb
+dsb:
+	mcr p15, 0, r0, c7, c10, 4
+	bx lr
