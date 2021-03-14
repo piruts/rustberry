@@ -24,7 +24,7 @@ pub unsafe fn get_function(pin: isize) -> u32 {
 }
 
 #[allow(unused)]
-pub unsafe fn set_input(pin: isize) { 
+pub unsafe fn set_input(pin: isize) {
     set_function(pin, 0);
 }
 
@@ -51,4 +51,22 @@ pub unsafe fn read(pin: isize) -> u32 {
     dev_barrier();
     let lev: *mut u32 = GPIO_LEV0.offset(pin / 32);
     return (lev.read_volatile() >> (pin % 32)) & 0b1;
+}
+
+#[test_case]
+pub fn test() {
+    unsafe {
+        set_output(16);
+        set_output(17);
+        set_input(18);
+        write(16, 1);
+        write(17, 0);
+        assert_eq!(read(16), 1);
+        assert_eq!(get_function(16), 1);
+        assert_eq!(read(17), 0);
+        assert_eq!(get_function(17), 1);
+        assert_eq!(get_function(18), 0);
+        //        write(16, 0);
+        //        assert_eq!(read(16), 0);
+    }
 }
