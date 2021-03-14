@@ -25,7 +25,7 @@ COMPILER_ARGS = --target=$(TARGET).json \
     -Z build-std=core,alloc
 
 RUSTC_CMD   = cargo rustc $(COMPILER_ARGS)
-TEST_CMD    = cargo test --verbose --no-run --message-format=json $(COMPILER_ARGS)
+TEST_CMD    = cargo test --no-run $(COMPILER_ARGS)
 DOC_CMD     = cargo doc $(COMPILER_ARGS)
 CLIPPY_CMD  = cargo clippy $(COMPILER_ARGS)
 CHECK_CMD   = cargo check $(COMPILER_ARGS)
