@@ -111,8 +111,10 @@
 #![feature(format_args_nl)]
 #![feature(global_asm)]
 #![feature(panic_info_message)]
+//#![feature(core_intrinsics)]
 #![no_main]
 #![no_std]
+
 
 mod bsp;
 mod console;
@@ -121,6 +123,8 @@ mod memory;
 mod panic_wait;
 mod print;
 mod runtime_init;
+//mod mailbox;
+mod fb;
 mod test;
 mod uart;
 mod gpio;
@@ -133,6 +137,8 @@ mod gpio;
 #[no_mangle]
 pub extern "C" fn main() -> ! {
     println!("[0] Hello from Rust!");
+    
+    fb::test();
     unsafe {
         uart::init();
     }
