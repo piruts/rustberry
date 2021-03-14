@@ -109,6 +109,16 @@ pub unsafe fn put_char(character: u8) -> u8 {
     character
 }
 
+#[test_case]
+fn test_put_char() {
+    unsafe {
+        put_char(0xF0);
+        put_char(0x9F);
+        put_char(0x9A);
+        put_char(0x80);
+    }
+}
+
 /*
 unsafe fn recieve() -> u8 {
     while !has_char() {}

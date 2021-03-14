@@ -114,18 +114,20 @@
 //#![feature(core_intrinsics)]
 #![no_main]
 #![no_std]
-
+#![feature(custom_test_frameworks)]
+#![test_runner(crate::test_runner)]
+#![reexport_test_harness_main = "test_main"]
 
 mod bsp;
 mod console;
 mod cpu;
+mod fb;
+mod led_test_harness;
+mod mailbox;
 mod memory;
 mod panic_wait;
 mod print;
 mod runtime_init;
-//mod mailbox;
-mod fb;
-mod test;
 mod uart;
 
 /// Early init code.
@@ -136,44 +138,26 @@ mod uart;
 #[no_mangle]
 pub extern "C" fn main() -> ! {
     println!("[0] Hello from Rust!");
-    
-    fb::test();
-    unsafe {
-        uart::init();
-    }
-    test::start_tests();
-    send_it_by_uart();
-    it_works();
-    it_does_not_work();
-    test::success();
     cpu::wait_forever();
 }
 
 // -------------------------------------------------------------------------------------------------
-// tests start here
+// tests harness start
 // -------------------------------------------------------------------------------------------------
 
-fn it_works() {
-    assert_eq!(fake_helper(2, 2), 4);
-}
-
-fn fake_helper(arg1: u32, arg2: u32) -> u32 {
-    arg1 + arg2
-}
-
-fn it_does_not_work() {
-    assert_eq!(2 + 2, 5);
-}
-
-fn send_it_by_uart() {
+#[cfg(test)]
+fn test_runner(tests: &[&dyn Fn()]) {
     unsafe {
-        uart::put_char(0xF0);
-        uart::put_char(0x9F);
-        uart::put_char(0x9A);
-        uart::put_char(0x80);
+        uart::init();
     }
+    led_test_harness::start_tests();
+    println!("Running {} tests", tests.len());
+    for test in tests {
+        test();
+    }
+    led_test_harness::success(); // loops forever with green led
 }
 
 // -------------------------------------------------------------------------------------------------
-// tests start here
+// tests start end
 // -------------------------------------------------------------------------------------------------
