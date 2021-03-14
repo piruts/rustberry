@@ -108,16 +108,20 @@
 //! [`runtime_init::runtime_init()`]: runtime_init/fn.runtime_init.html
 
 #![feature(asm)]
+#![feature(alloc_error_handler)]
 #![feature(format_args_nl)]
 #![feature(global_asm)]
 #![feature(panic_info_message)]
+#![feature(const_mut_refs)]
 //#![feature(core_intrinsics)]
 #![no_main]
 #![no_std]
 
+extern crate alloc;
+use alloc::{boxed::Box}; //, rc::Rc, vec, vec::Vec};
 
+mod allocator;
 mod bsp;
-mod console;
 mod cpu;
 mod memory;
 mod panic_wait;
@@ -136,8 +140,9 @@ mod uart;
 #[no_mangle]
 pub extern "C" fn main() -> ! {
     println!("[0] Hello from Rust!");
-    
+
     fb::test();
+    let x = Box::new(41);
     unsafe {
         uart::init();
     }
