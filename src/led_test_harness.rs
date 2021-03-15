@@ -2,7 +2,7 @@ const GPIO_BASE: u32 = 0x20200000; // leave here to test GPIO module
 
 use crate::cpu;
 
-pub fn success() {
+pub fn success() -> ! {
     let gpio = GPIO_BASE as *const u32; //
     let led_on = unsafe { gpio.offset(8) as *mut u32 };
     let led_off = unsafe { gpio.offset(11) as *mut u32 };

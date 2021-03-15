@@ -6,7 +6,8 @@
 
 PROJECT           = rustberry
 TARGET            = armv6kz-none-eabi
-KERNEL_BIN        = $(PROJECT).bin
+BIN        		  = $(PROJECT).bin
+TEST_BIN		  = test-$(PROJECT).bin
 OBJDUMP_BINARY    = arm-none-eabi-objdump
 NM_BINARY         = arm-none-eabi-nm
 LINKER_FILE       = src/bsp/raspberrypi/link.ld
@@ -15,15 +16,16 @@ LINKER_FILE       = src/bsp/raspberrypi/link.ld
 export LINKER_FILE
 
 RUSTFLAGS          = -C link-arg=-T$(LINKER_FILE)
-RUSTFLAGS_PEDANTIC = $(RUSTFLAGS) -D warnings -D missing_docs
+RUSTFLAGS_PEDANTIC = $(RUSTFLAGS) #-D warnings -D missing_docs
 
 FEATURES      = bsp_rpiA
 COMPILER_ARGS = --target=$(TARGET).json \
     --features $(FEATURES)         \
     --release                      \
-    -Z build-std=core
+    -Z build-std=core,alloc
 
 RUSTC_CMD   = cargo rustc $(COMPILER_ARGS)
+TEST_CMD    = cargo test --no-run $(COMPILER_ARGS)
 DOC_CMD     = cargo doc $(COMPILER_ARGS)
 CLIPPY_CMD  = cargo clippy $(COMPILER_ARGS)
 CHECK_CMD   = cargo check $(COMPILER_ARGS)
@@ -31,21 +33,38 @@ OBJCOPY_CMD = rust-objcopy \
     --strip-all            \
     -O binary
 
-KERNEL_ELF = target/$(TARGET)/release/$(PROJECT)
+ELF = target/$(TARGET)/release/$(PROJECT)
 
-.PHONY: all $(KERNEL_ELF) $(KERNEL_BIN) doc clippy clean readelf objdump nm check
+TEST_ELF = target/$(TARGET)/release/deps/$(PROJECT)-*[!.]?
 
-$(KERNEL_ELF):
+.PHONY: all $(ELF) $(TEST_ELF) $(BIN) $(TEST_BIN) doc clippy clean readelf objdump nm check
+
+always_clean_and_format: clean
+	cargo fmt
+
+$(ELF):
 	RUSTFLAGS="$(RUSTFLAGS_PEDANTIC)" $(RUSTC_CMD)
 
-$(KERNEL_BIN): $(KERNEL_ELF)
-	@$(OBJCOPY_CMD) $(KERNEL_ELF) $(KERNEL_BIN)
+$(TEST_ELF):
+	RUSTFLAGS="$(RUSTFLAGS_PEDANTIC)" $(TEST_CMD)
+	ln -s target/$(TARGET)/release/deps/$(PROJECT)-*[!.]? target/$(TARGET)/release/test-$(PROJECT)
 
-all: $(KERNEL_BIN)
-elf: $(KERNEL_ELF)
+$(BIN): $(ELF)
+	@$(OBJCOPY_CMD) $(ELF) $(BIN)
 
-run: $(KERNEL_BIN)
-	./bin/rpi-run.py -p -t 2 $(PROJECT).bin
+$(TEST_BIN): $(TEST_ELF)
+	@$(OBJCOPY_CMD) $(TEST_ELF) $(TEST_BIN)
+
+all: $(BIN)
+elf: $(ELF)
+
+test_elf: $(TEST_ELF)
+
+run: always_clean_and_format $(BIN)
+	./bin/rpi-run.py -p -t 2 $(BIN)
+
+test: always_clean_and_format $(TEST_BIN)
+	./bin/rpi-run.py -p -t 2 $(TEST_BIN)
 
 doc:
 	$(DOC_CMD) --document-private-items --open
@@ -54,16 +73,16 @@ clippy:
 	RUSTFLAGS="$(RUSTFLAGS_PEDANTIC)" $(CLIPPY_CMD)
 
 clean:
-	rm -rf target $(KERNEL_BIN)
+	rm -rf target $(BIN) $(TEST_BIN)
 
-readelf: $(KERNEL_ELF)
-	readelf --headers $(KERNEL_ELF)
+readelf: $(ELF)
+	readelf --headers $(ELF)
 
-objdump: $(KERNEL_ELF)
-	@$(DOCKER_ELFTOOLS) $(OBJDUMP_BINARY) --disassemble --demangle $(KERNEL_ELF) | rustfilt
+objdump: $(ELF)
+	@$(DOCKER_ELFTOOLS) $(OBJDUMP_BINARY) --disassemble --demangle $(ELF) | rustfilt
 
-nm: $(KERNEL_ELF)
-	@$(DOCKER_ELFTOOLS) $(NM_BINARY) --demangle --print-size $(KERNEL_ELF) | sort | rustfilt
+nm: $(ELF)
+	@$(DOCKER_ELFTOOLS) $(NM_BINARY) --demangle --print-size $(ELF) | sort | rustfilt
 
 # For rust-analyzer
 check:

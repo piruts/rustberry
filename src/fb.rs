@@ -1,4 +1,5 @@
-#[path = "mailbox.rs"] mod mailbox;
+#[path = "mailbox.rs"]
+mod mailbox;
 
 #[repr(C, align(16))]
 struct FbConfigT {
@@ -14,11 +15,8 @@ struct FbConfigT {
     total_bytes: u32,
 }
 
-
 pub const FB_SINGLEBUFFER: u32 = 0;
 pub const FB_DOUBLEBUFFER: u32 = 1;
-
-//const GPIO_BASE: u32 = 0x20200000;
 
 static mut FB: FbConfigT = FbConfigT {
     width: 100,
@@ -35,19 +33,21 @@ static mut FB: FbConfigT = FbConfigT {
 
 static mut BUFMODE: u32 = FB_SINGLEBUFFER;
 
-use mailbox::MAILBOX_FRAMEBUFFER;
 use mailbox::mailbox_request;
+use mailbox::MAILBOX_FRAMEBUFFER;
 
-pub unsafe fn fb_init(width: u32, height: u32, 
-               depth_in_bytes: u32, mode: u32) -> bool {
+pub unsafe fn fb_init(width: u32, height: u32, depth_in_bytes: u32, mode: u32) -> bool {
     BUFMODE = mode;
-    
+
     FB.width = width;
     FB.height = height;
     FB.virtual_width = width;
-    FB.virtual_height = 
-        if mode == FB_SINGLEBUFFER {height} else {2*height};
-    
+    FB.virtual_height = if mode == FB_SINGLEBUFFER {
+        height
+    } else {
+        2 * height
+    };
+
     FB.bit_depth = 8 * depth_in_bytes;
     FB.x_offset = 0;
     FB.y_offset = 0;
@@ -56,23 +56,27 @@ pub unsafe fn fb_init(width: u32, height: u32,
     FB.pitch = 0;
     FB.framebuffer = 0;
     FB.total_bytes = 0;
-    
+
     let config_addr: u32 = (&FB as *const _) as u32;
     mailbox_request(MAILBOX_FRAMEBUFFER, config_addr)
 }
 
 pub unsafe fn fb_swap_buffer() -> bool {
-    if BUFMODE == FB_SINGLEBUFFER { return true };
-    FB.y_offset = (FB.y_offset + FB.height) % (2*FB.height);
-    
+    if BUFMODE == FB_SINGLEBUFFER {
+        return true;
+    };
+    FB.y_offset = (FB.y_offset + FB.height) % (2 * FB.height);
+
     let config_addr: u32 = (&FB as *const _) as u32;
     mailbox_request(MAILBOX_FRAMEBUFFER, config_addr)
 }
 
 pub unsafe fn fb_get_draw_buffer() -> u32 {
-    if BUFMODE == FB_SINGLEBUFFER { return FB.framebuffer; }
+    if BUFMODE == FB_SINGLEBUFFER {
+        return FB.framebuffer;
+    }
     let row_offset: u32 = (FB.y_offset + FB.height) % (2 * FB.height);
-    FB.framebuffer + row_offset*fb_get_pitch()
+    FB.framebuffer + row_offset * fb_get_pitch()
 }
 
 pub unsafe fn fb_get_width() -> u32 {
@@ -90,4 +94,3 @@ pub unsafe fn fb_get_depth() -> u32 {
 pub unsafe fn fb_get_pitch() -> u32 {
     FB.pitch
 }
-
