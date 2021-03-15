@@ -121,6 +121,7 @@
 mod bsp;
 mod cpu;
 mod fb;
+mod gl;
 mod gpio;
 mod led_test_harness;
 mod mailbox;
@@ -137,7 +138,6 @@ mod uart;
 /// - Only a single core must be active and running this function.
 #[no_mangle]
 pub extern "C" fn main() -> ! {
-    println!("[0] Hello from Rust!");
     cpu::wait_forever();
 }
 
