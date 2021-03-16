@@ -135,6 +135,7 @@ mod panic_wait;
 mod print;
 mod ps2;
 mod runtime_init;
+mod timer;
 mod uart;
 
 /// Early init code.
@@ -156,6 +157,7 @@ fn test_runner(tests: &[&dyn Fn()]) {
     unsafe {
         uart::init();
     }
+    allocator::init_heap();
     led_test_harness::start_tests();
     println!("Running {} tests", tests.len());
     for test in tests {
