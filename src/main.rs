@@ -108,9 +108,11 @@
 //! [`runtime_init::runtime_init()`]: runtime_init/fn.runtime_init.html
 
 #![feature(asm)]
+#![feature(alloc_error_handler)]
 #![feature(format_args_nl)]
 #![feature(global_asm)]
 #![feature(panic_info_message)]
+#![feature(const_mut_refs)]
 //#![feature(core_intrinsics)]
 #![no_main]
 #![no_std]
@@ -118,9 +120,13 @@
 #![test_runner(crate::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
+extern crate alloc;
+
+mod allocator;
 mod bsp;
 mod cpu;
 mod fb;
+mod gl;
 mod gpio;
 mod led_test_harness;
 mod mailbox;
@@ -138,7 +144,6 @@ mod uart;
 /// - Only a single core must be active and running this function.
 #[no_mangle]
 pub extern "C" fn main() -> ! {
-    println!("[0] Hello from Rust!");
     cpu::wait_forever();
 }
 

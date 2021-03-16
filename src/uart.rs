@@ -1,6 +1,8 @@
 // Author: Flynn Dreilinger <flynnd@stanford.edu>
 // based on uart.c by Pat Hanrahan
 
+use crate::cpu;
+
 // AUX bits
 const AUX_ENABLES: u32 = 0x20215004;
 const AUX_ENABLE: u32 = 0x00000001;
@@ -15,7 +17,7 @@ const MINI_UART_IIR_TX_FIFO_ENABLE: u32 = 0x00000040;
 
 const MINI_UART_LCR_8BIT: u32 = 0x00000003;
 
-// const MINI_UART_LSR_RX_READY: u32 = 0x00000001;
+const MINI_UART_LSR_RX_READY: u32 = 0x00000001;
 // const MINI_UART_LSR_TX_READY: u32 = 0x00000010;
 const MINI_UART_LSR_TX_EMPTY: u32 = 0x00000020;
 
@@ -54,6 +56,7 @@ static mut INITIALIZED: bool = false;
 * [...] The result will be that the FIFO is full and overflowing in no time flat.
 */
 pub unsafe fn init() {
+    cpu::dev_barrier();
     let gpio = GPIO_BASE as *const u32;
     let fsel_1 = gpio.offset(1) as *mut u32;
 
@@ -85,6 +88,7 @@ pub unsafe fn init() {
         (MINI_UART_CNTL_TX_ENABLE | MINI_UART_CNTL_RX_ENABLE) as u32,
     );
     INITIALIZED = true;
+    cpu::dev_barrier();
 }
 
 unsafe fn send(byte: u8) {
@@ -92,41 +96,11 @@ unsafe fn send(byte: u8) {
     core::ptr::write_volatile(&mut (*UART).data, byte as u32 & 0xff_u32);
 }
 
-pub unsafe fn put_char(character: u8) -> u8 {
-    // force initialize if not yet done
-    // this fallback is special case for uart_putchar as
-    // without it, all output (print/assert) can fail and no
-    // clear indication because of self-referential nature of problem
-    if !INITIALIZED {
-        init();
-    }
-
-    // convert newline to CR LF sequence by inserting CR
-    if character == b'\n' {
-        send(b'\r');
-    }
-    send(character);
-    character
-}
-
-#[test_case]
-fn test_put_char() {
-    unsafe {
-        put_char(0xF0);
-        put_char(0x9F);
-        put_char(0x9A);
-        put_char(0x80);
-    }
-}
-
-/*
 unsafe fn recieve() -> u8 {
     while !has_char() {}
     (*UART).data as u8
 }
- */
 
-/*
 unsafe fn flush() {
     while (*UART).lsr & MINI_UART_LSR_TX_EMPTY as u32 == 0 {}
 }
@@ -149,13 +123,43 @@ unsafe fn get_char() -> u8 {
     }
     character
 }
- */
 
-/*
+pub unsafe fn put_u8(character: u8) {
+    // TODO take a u32 UTF-8 and put 4 times
+    // force initialize if not yet done
+    // this fallback is special case for uart_putchar as
+    // without it, all output (print/assert) can fail and no
+    // clear indication because of self-referential nature of problem
+    if !INITIALIZED {
+        init();
+    }
+    cpu::dev_barrier();
+    send(character);
+    cpu::dev_barrier();
+}
 
-<<<<<<< Updated upstream
-pub unsafe fn put_string(str: *const u8) -> u32 {
-=======
+#[test_case]
+fn test_put_u8() {
+    // put a rocketship
+    unsafe {
+        put_u8(0xF0);
+        put_u8(0x9F);
+        put_u8(0x9A);
+        put_u8(0x80);
+    }
+}
+
+pub unsafe fn put_utf8_char(character: char) {
+    cpu::dev_barrier();
+    if !INITIALIZED {
+        init();
+    }
+    for i in (0..4).rev() {
+        put_u8((character as u32 >> (i * 2)) as u8 & 0xFF as u8);
+    }
+    cpu::dev_barrier();
+}
+
 #[test_case]
 fn test_put_utf8_char() {
     // say hello
@@ -163,19 +167,16 @@ fn test_put_utf8_char() {
         cpu::dev_barrier();
         put_utf8_char('h');
         //put_utf8_char('e');  // TODO this test breaks something and does not panic, not sure what
-        // is going on here. Will fix in subsequent PR
+                               // is going on here. Will fix in subsequent PR
         cpu::dev_barrier();
     }
 }
 
 pub unsafe fn put_string(str: *const u8) {
->>>>>>> Stashed changes
     let mut n: u32 = 0;
     while *str.offset(n as isize) != 0 {
-        put_char(*str.offset(n as isize) as u8);
+        put_utf8_char(*str.offset(n as isize) as char);
         n += 1
     }
-    n
+    B
 }
-
- */

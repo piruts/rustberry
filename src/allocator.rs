@@ -4,7 +4,6 @@ use core::ptr::null_mut;
 use fixed_size_block::FixedSizeBlockAllocator;
 
 // modules
-#[path = "allocator/fixed_size_block.rs"]
 pub mod fixed_size_block;
 
 //--------------------------------------------------------------------------------------------------
