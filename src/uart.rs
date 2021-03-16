@@ -153,7 +153,23 @@ unsafe fn get_char() -> u8 {
 
 /*
 
+<<<<<<< Updated upstream
 pub unsafe fn put_string(str: *const u8) -> u32 {
+=======
+#[test_case]
+fn test_put_utf8_char() {
+    // say hello
+    unsafe {
+        cpu::dev_barrier();
+        put_utf8_char('h');
+        //put_utf8_char('e');  // TODO this test breaks something and does not panic, not sure what
+        // is going on here. Will fix in subsequent PR
+        cpu::dev_barrier();
+    }
+}
+
+pub unsafe fn put_string(str: *const u8) {
+>>>>>>> Stashed changes
     let mut n: u32 = 0;
     while *str.offset(n as isize) != 0 {
         put_char(*str.offset(n as isize) as u8);

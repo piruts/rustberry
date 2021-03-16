@@ -127,6 +127,7 @@ mod mailbox;
 mod memory;
 mod panic_wait;
 mod print;
+mod ps2;
 mod runtime_init;
 mod uart;
 

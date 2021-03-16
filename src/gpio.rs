@@ -16,24 +16,20 @@ pub unsafe fn set_function(pin: isize, function: u32) {
     dev_barrier();
 }
 
-#[allow(unused)]
 pub unsafe fn get_function(pin: isize) -> u32 {
     dev_barrier();
     let fsel: *mut u32 = GPIO_FSEL0.offset(pin / 10);
     return (fsel.read_volatile() >> ((pin % 10) * 3)) & 0b111;
 }
 
-#[allow(unused)]
 pub unsafe fn set_input(pin: isize) {
     set_function(pin, 0);
 }
 
-#[allow(unused)]
 pub unsafe fn set_output(pin: isize) {
     set_function(pin, 1);
 }
 
-#[allow(unused)]
 pub unsafe fn write(pin: isize, value: u32) {
     dev_barrier();
     if value == 0 {
@@ -46,11 +42,45 @@ pub unsafe fn write(pin: isize, value: u32) {
     dev_barrier();
 }
 
-#[allow(unused)]
 pub unsafe fn read(pin: isize) -> u32 {
     dev_barrier();
     let lev: *mut u32 = GPIO_LEV0.offset(pin / 32);
     return (lev.read_volatile() >> (pin % 32)) & 0b1;
+}
+
+const GPPUD: *mut u32 = (GPIO_BASE + 0x94) as *mut u32;
+const GPPUDCLK: *mut u32 = (GPIO_BASE + 0x98) as *mut u32;
+
+//enum { GPIO_PUD_DISABLE = 0, GPIO_PUD_PULLDOWN = 1, GPIO_PUD_PULLUP = 2 };
+
+pub unsafe fn set_pud(pin: isize, pud: u32) {
+    //let bank: u32 = pin / 32;
+    //let shift: u32 = pin % 32;
+
+    let gppudclk: *mut u32 = GPPUDCLK.offset(pin / 32);
+
+    GPPUD.write_volatile(pud);
+    for x in 0..150 {}
+
+    gppudclk.write_volatile(1 << (pin % 32));
+    for x in 0..150 {}
+
+    gppudclk.write_volatile(0);
+}
+
+#[allow(unused)]
+pub unsafe fn set_pullup(pin: isize) {
+    set_pud(pin, 2);
+}
+
+#[allow(unused)]
+pub unsafe fn set_pulldown(pin: isize) {
+    set_pud(pin, 1);
+}
+
+#[allow(unused)]
+pub unsafe fn set_pullnone(pin: isize) {
+    set_pud(pin, 0);
 }
 
 #[test_case]
@@ -66,7 +96,10 @@ pub fn test() {
         assert_eq!(read(17), 0);
         assert_eq!(get_function(17), 1);
         assert_eq!(get_function(18), 0);
-        //        write(16, 0);
-        //        assert_eq!(read(16), 0);
+        write(16, 0);
+        assert_eq!(read(16), 0);
+        set_pullup(16);
+        set_pulldown(16);
+        set_pullnone(16);
     }
 }
