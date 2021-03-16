@@ -11,6 +11,11 @@ use core::panic::PanicInfo;
 
 const GPIO_BASE: u32 = 0x20200000; // leave here to test GPIO module
 
+#[alloc_error_handler]
+fn alloc_error_handler(layout: alloc::alloc::Layout) -> ! {
+    panic!("allocation error: {:?}", layout)
+}
+
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     if let Some(args) = info.message() {

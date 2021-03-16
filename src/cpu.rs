@@ -17,6 +17,10 @@ mod boot;
 //--------------------------------------------------------------------------------------------------
 pub use arch_cpu::wait_forever;
 
+extern "C" {
+    pub fn dev_barrier();
+}
+
 /// Pause execution on the core by doing something small again and again.
 pub fn sleep(value: u32) {
     for _ in 1..value {
