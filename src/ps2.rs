@@ -11,16 +11,19 @@ struct Ps2DeviceT {
 
 //static mut timeout: u32 = 0;
 
-pub unsafe fn ps2_new(clock_gpio: u8, data_gpio: u8) -> *mut Ps2DeviceT {
-    let dev: *mut Ps2DeviceT = Box::new(core::mem::size_of::<Ps2DeviceT>());
+pub unsafe fn ps2_new(clock_gpio: u8, data_gpio: u8) -> Box<Ps2DeviceT> {
+    let dev = Ps2DeviceT {
+        clock: clock_gpio as u32,
+        data: data_gpio as u32,
+    };
 
-    (*dev).clock = clock_gpio as u32;
-    gpio::set_input((*dev).clock as isize);
-    gpio::set_pullup((*dev).clock as isize);
+    gpio::set_input((dev).clock as isize);
+    gpio::set_pullup((dev).clock as isize);
 
-    (*dev).data = data_gpio as u32;
-    gpio::set_input((*dev).data as isize);
-    gpio::set_pullup((*dev).data as isize);
+    gpio::set_input((dev).data as isize);
+    gpio::set_pullup((dev).data as isize);
+
+    let dev: Box<Ps2DeviceT> = Box::new(dev);
 
     return dev;
 }
@@ -77,9 +80,9 @@ pub fn test() {
     unsafe {
         uart::put_u8(0x30);
     }
-    let dev: *mut Ps2DeviceT = unsafe{ps2_new(3, 4)};
+    let dev: *mut Ps2DeviceT = unsafe { ps2_new(3, 4) };
 
-    let scancode: u32 = unsafe{ps2_read(dev)};
+    let scancode: u32 = unsafe { ps2_read(dev) };
     unsafe {
         uart::put_u8(scancode as u8);
     }
