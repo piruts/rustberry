@@ -1,11 +1,8 @@
-#[path = "allocator.rs"]
-mod allocator;
-#[path = "gpio.rs"]
-mod gpio;
-#[path = "timer.rs"]
-mod timer;
-#[path = "uart.rs"]
-mod uart;
+use alloc::boxed::Box;
+
+use crate::gpio;
+use crate::timer;
+use crate::uart;
 
 struct Ps2DeviceT {
     clock: u32,
@@ -15,7 +12,7 @@ struct Ps2DeviceT {
 //static mut timeout: u32 = 0;
 
 pub unsafe fn ps2_new(clock_gpio: u8, data_gpio: u8) -> *mut Ps2DeviceT {
-    let dev: *mut Ps2DeviceT = allocator::Box::new(core::mem::size_of::<Ps2DeviceT>());
+    let dev: *mut Ps2DeviceT = Box::new(core::mem::size_of::<Ps2DeviceT>());
 
     (*dev).clock = clock_gpio as u32;
     gpio::set_input((*dev).clock as isize);
@@ -77,11 +74,15 @@ pub unsafe fn ps2_read(dev: *mut Ps2DeviceT) -> u32 {
 
 #[test_case]
 pub fn test() {
-    uart::put_u8(0x30);
-    let dev: *mut Ps2DeviceT = ps2_new(3, 4);
+    unsafe {
+        uart::put_u8(0x30);
+    }
+    let dev: *mut Ps2DeviceT = unsafe{ps2_new(3, 4)};
 
-    let scancode: u32 = ps2_read(dev);
-    uart::put_u8(scancode as u8);
+    let scancode: u32 = unsafe{ps2_read(dev)};
+    unsafe {
+        uart::put_u8(scancode as u8);
+    }
     //printf("[%02x]\n", scancode);
 }
 /*
