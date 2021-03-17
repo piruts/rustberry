@@ -166,15 +166,27 @@ struct EnemyRow {
     direction: i32,
     max_x: i32,
     min_x: i32,
+    // 1 is destroyed, 0 is alive
+    status: u32,
 }
 
 impl EnemyRow {
+    pub fn ship_status(&self, ship_num: i32) -> bool {
+        (self.status & (1 << ship_num)) > 0
+    }
+
+    pub fn clear_ship(&mut self, ship_num: i32) {
+        self.status = self.status & !(1 << ship_num);
+    }
+
     pub fn draw(&self) -> Result<(), core::convert::Infallible> {
         let mut display = Display {};
         let red = PrimitiveStyle::with_fill(Bgr888::RED);
         let black = PrimitiveStyle::with_fill(Bgr888::BLACK);
 
         for i in 0..self.row_size {
+            let alive: bool = self.ship_status(i);
+
             let base_x: i32 = self.start_x + 2 * self.size * i;
             let base_y: i32 = self.start_y;
 
@@ -183,7 +195,7 @@ impl EnemyRow {
                 Point::new(base_x - self.size / 2, base_y),
                 Point::new(base_x + self.size / 2, base_y),
             )
-            .into_styled(red)
+            .into_styled(if alive { red } else { black })
             .draw(&mut display)?;
 
             Triangle::new(
@@ -242,6 +254,73 @@ impl EnemyRow {
     }
 }
 
+struct Beam {
+    curr_x: i32,
+    curr_y: i32,
+    width: i32,
+    height: i32,
+    // was the beam emmitted by the player or enemy
+    player: bool,
+    // is the beam on screen
+    active: bool,
+    prev_dx: i32,
+    prev_dy: i32,
+}
+
+impl Beam {
+    pub fn draw(&self) -> Result<(), core::convert::Infallible> {
+        if !self.active {
+            return Ok(());
+        }
+        let mut display = Display {};
+
+        let cyan = PrimitiveStyle::with_fill(Bgr888::CYAN);
+        let yellow = PrimitiveStyle::with_fill(Bgr888::YELLOW);
+
+        Rectangle::new(
+            Point::new(self.curr_x, self.curr_y),
+            Point::new(self.curr_x + self.width, self.curr_y + self.height),
+        )
+        .into_styled(if self.player { cyan } else { yellow })
+        .draw(&mut display)?;
+
+        Ok(())
+    }
+
+    pub fn clear(&self) -> Result<(), core::convert::Infallible> {
+        let mut display = Display {};
+        let black = PrimitiveStyle::with_fill(Bgr888::BLACK);
+
+        Rectangle::new(
+            Point::new(self.curr_x - self.prev_dx, self.curr_y - self.prev_dy),
+            Point::new(
+                self.curr_x + self.width - self.prev_dx,
+                self.curr_y + self.height - self.prev_dy,
+            ),
+        )
+        .into_styled(black)
+        .draw(&mut display)?;
+
+        Ok(())
+    }
+
+    pub fn move_by(&mut self, amount: i32) {
+        if !self.active {
+            self.prev_dx = 0;
+            self.prev_dy = 0;
+            return;
+        }
+        if self.curr_y - amount < 0 {
+            self.active = false;
+            return;
+        }
+        self.curr_y -= amount;
+
+        self.prev_dx = 0;
+        self.prev_dy = -amount;
+    }
+}
+
 pub unsafe fn space_invaders() -> Result<(), core::convert::Infallible> {
     fb::fb_init(640, 512, 4, fb::FB_DOUBLEBUFFER);
     let w = 640;
@@ -271,6 +350,7 @@ pub unsafe fn space_invaders() -> Result<(), core::convert::Infallible> {
         direction: 1,
         min_x: 60,
         max_x: w - 30,
+        status: !0,
     };
 
     let mut row2 = EnemyRow {
@@ -283,6 +363,18 @@ pub unsafe fn space_invaders() -> Result<(), core::convert::Infallible> {
         direction: 1,
         min_x: 60,
         max_x: w - 30,
+        status: !0,
+    };
+
+    let mut beam = Beam {
+        curr_x: 100,
+        curr_y: h - 30,
+        width: 10,
+        height: 20,
+        player: true,
+        active: true,
+        prev_dx: 0,
+        prev_dy: 0,
     };
 
     loop {
@@ -297,6 +389,10 @@ pub unsafe fn space_invaders() -> Result<(), core::convert::Infallible> {
         ship.clear();
         ship.move_by(dx, 0);
         ship.draw();
+
+        beam.clear();
+        beam.move_by(5);
+        beam.draw();
 
         fb::fb_swap_buffer();
         cpu::sleep(170000);
@@ -322,19 +418,11 @@ pub unsafe fn _gl_test() -> Result<(), core::convert::Infallible> {
     for i in 1..60 {
         fb::fb_swap_buffer();
 
-        /*Rectangle::new(Point::new(0, 0), Point::new(w - 1, h - 1))
-        .into_styled(black)
-        .draw(&mut display)?;*/
-
-        Circle::new(Point::new(50 + 5 * (i - 1), 50 + 5 * (i - 1)), 40)
+        Rectangle::new(Point::new(0, 0), Point::new(w - 1, h - 1))
             .into_styled(black)
             .draw(&mut display)?;
 
-        Circle::new(Point::new(50 + 5 * i, 50 + 5 * i), 40)
-            .into_styled(yellow)
-            .draw(&mut display)?;
-
-        /*Triangle::new(
+        Triangle::new(
             Point::new(w / 2 - 200, h / 2 + 200),
             Point::new(w / 2 - 100, h / 2 + 200),
             Point::new(2 - 1, h / 4),
@@ -356,17 +444,9 @@ pub unsafe fn _gl_test() -> Result<(), core::convert::Infallible> {
             Point::new(w / 2 - 100, h / 2 - 100),
         )
         .into_styled(amber)
-        .draw(&mut display)?;*/
+        .draw(&mut display)?;
 
         fb::fb_swap_buffer();
-
-        Circle::new(Point::new(50 + 5 * (i - 1), 50 + 5 * (i - 1)), 40)
-            .into_styled(black)
-            .draw(&mut display)?;
-
-        Circle::new(Point::new(50 + 5 * i, 50 + 5 * i), 40)
-            .into_styled(yellow)
-            .draw(&mut display)?;
 
         cpu::sleep(15000);
     }
