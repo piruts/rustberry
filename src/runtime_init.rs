@@ -4,7 +4,7 @@
 
 //! Rust runtime initialization code.
 
-use crate::{bsp, memory};
+use crate::{allocator, bsp, cpu, memory, uart};
 
 //--------------------------------------------------------------------------------------------------
 // Private Code
@@ -33,6 +33,15 @@ unsafe fn zero_bss() {
 #[no_mangle]
 pub unsafe fn runtime_init() -> ! {
     zero_bss();
+    uart::init();
+    // Put a 🚀 over UART
+    /*
+    uart::put_u8(0xF0);
+    uart::put_u8(0x9F);
+    uart::put_u8(0x9A);
+    uart::put_u8(0x80); */
+
+    allocator::init_heap();
 
     #[cfg(test)]
     crate::test_main();
