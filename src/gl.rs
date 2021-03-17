@@ -102,9 +102,6 @@ impl Spaceship {
     pub fn draw(&self) -> Result<(), core::convert::Infallible> {
         let mut display = Display {};
         let green = PrimitiveStyle::with_fill(Bgr888::GREEN);
-        /*Circle::new(Point::new(self.pos_x, self.pos_y), self.size)
-        .into_styled(yellow)
-        .draw(&mut display)?;*/
         Triangle::new(
             Point::new(self.pos_x, self.pos_y - self.size),
             Point::new(self.pos_x - self.size / 2, self.pos_y),
@@ -259,12 +256,13 @@ struct Beam {
     curr_y: i32,
     width: i32,
     height: i32,
-    // was the beam emmitted by the player or enemy
-    player: bool,
+    // 1 is player, -1 is enemy
+    player: i32,
     // is the beam on screen
     active: bool,
     prev_dx: i32,
     prev_dy: i32,
+    window_height: i32,
 }
 
 impl Beam {
@@ -281,7 +279,7 @@ impl Beam {
             Point::new(self.curr_x, self.curr_y),
             Point::new(self.curr_x + self.width, self.curr_y + self.height),
         )
-        .into_styled(if self.player { cyan } else { yellow })
+        .into_styled(if self.player == 1 { cyan } else { yellow })
         .draw(&mut display)?;
 
         Ok(())
@@ -310,14 +308,17 @@ impl Beam {
             self.prev_dy = 0;
             return;
         }
-        if self.curr_y - amount < 0 {
+
+        let delta: i32 = self.player * amount;
+
+        if (self.curr_y - delta) < 0 || (self.curr_y - delta + self.height) > self.window_height {
             self.active = false;
             return;
         }
-        self.curr_y -= amount;
+        self.curr_y -= delta;
 
         self.prev_dx = 0;
-        self.prev_dy = -amount;
+        self.prev_dy = -delta;
     }
 }
 
@@ -366,15 +367,28 @@ pub unsafe fn space_invaders() -> Result<(), core::convert::Infallible> {
         status: !0,
     };
 
-    let mut beam = Beam {
+    let mut beam1 = Beam {
         curr_x: 100,
         curr_y: h - 30,
         width: 10,
         height: 20,
-        player: true,
+        player: 1,
         active: true,
         prev_dx: 0,
         prev_dy: 0,
+        window_height: h,
+    };
+
+    let mut beam2 = Beam {
+        curr_x: 200,
+        curr_y: 75,
+        width: 10,
+        height: 20,
+        player: -1,
+        active: true,
+        prev_dx: 0,
+        prev_dy: 0,
+        window_height: h,
     };
 
     loop {
@@ -390,9 +404,13 @@ pub unsafe fn space_invaders() -> Result<(), core::convert::Infallible> {
         ship.move_by(dx, 0);
         ship.draw();
 
-        beam.clear();
-        beam.move_by(5);
-        beam.draw();
+        beam1.clear();
+        beam1.move_by(5);
+        beam1.draw();
+
+        beam2.clear();
+        beam2.move_by(5);
+        beam2.draw();
 
         fb::fb_swap_buffer();
         cpu::sleep(170000);
