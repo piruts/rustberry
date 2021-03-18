@@ -19,4 +19,5 @@ bsp_rpiA = []
 
 [dependencies]
 spin = "0.8"
+bare-metal = "1.0.0"
 embedded-graphics = "0.6.2"
