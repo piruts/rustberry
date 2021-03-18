@@ -1,4 +1,5 @@
-use crate::uart;
+// Author: Flynn Dreilinger <flynnd@stanford.edu>
+
 use alloc::alloc::{GlobalAlloc, Layout};
 use core::ptr;
 
@@ -10,7 +11,7 @@ extern "Rust" {
 #[global_allocator]
 static ALLOCATOR: Locked<Allocator> = Locked::new(Allocator::new());
 
-pub const HEAP_SIZE: usize = 0x100000; // 16MB stack size
+pub const HEAP_SIZE: usize = 0x1000000; // 16MB stack size
 
 /// A wrapper around spin::Mutex to permit trait implementations.
 pub struct Locked<A> {
@@ -31,7 +32,7 @@ impl<A> Locked<A> {
 
 pub fn init_heap() {
     unsafe {
-        ALLOCATOR.lock().init(__bss_end_inclusive, HEAP_SIZE);
+        (*ALLOCATOR.lock()).init(__bss_end_inclusive, HEAP_SIZE);
     }
 }
 
@@ -157,7 +158,7 @@ unsafe impl GlobalAlloc for Locked<Allocator> {
         }
     }
 
-    unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
+    unsafe fn dealloc(&self, ptr: *mut u8, _layout: Layout) {
         let mut allocator = self.lock();
         allocator.deallocate(ptr);
     }

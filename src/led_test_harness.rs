@@ -1,3 +1,5 @@
+// Author: Flynn Dreilinger <flynnd@stanford.edu>
+
 const GPIO_BASE: u32 = 0x20200000; // leave here to test GPIO module
 
 use crate::cpu;

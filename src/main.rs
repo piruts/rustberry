@@ -152,11 +152,7 @@ pub extern "C" fn main() -> ! {
 
 #[cfg(test)]
 fn test_runner(tests: &[&dyn Fn()]) {
-    unsafe {
-        uart::init();
-    }
     led_test_harness::start_tests();
-    println!("Running {} tests", tests.len());
     for test in tests {
         test();
     }
