@@ -1,6 +1,8 @@
 // Author: Flynn Dreilinger <flynnd@stanford.edu>
 
 use alloc::alloc::{GlobalAlloc, Layout};
+use alloc::boxed::Box;
+use alloc::vec::Vec;
 use core::cell::UnsafeCell;
 use core::ptr;
 
@@ -145,6 +147,21 @@ unsafe impl GlobalAlloc for Allocator {
     unsafe fn dealloc(&self, ptr: *mut u8, _layout: Layout) {
         self.deallocate(ptr);
     }
+}
+
+
+#[test_case]
+fn test_vector() {
+    let mut xs = Vec::new();
+    xs.push(42);
+    assert_eq!(xs.pop(), Some(42));
+}
+
+#[test_case]
+fn test_box() {
+    let boxed: Box<u8> = Box::new(5);
+    let val: u8 = *boxed;
+    assert_eq!(val, 5);
 }
 
 //--------------------------------------------------------------------------------------------------
