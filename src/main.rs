@@ -145,7 +145,6 @@ mod uart;
 #[no_mangle]
 pub extern "C" fn main() -> ! {
     led_test_harness::success(); // flashes green led forever
-                                 //cpu::wait_forever();
 }
 
 // -------------------------------------------------------------------------------------------------
