@@ -120,9 +120,9 @@
 #![test_runner(crate::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
-extern crate alloc;
+//extern crate alloc;
 
-mod allocator;
+//mod allocator;
 mod bsp;
 mod cpu;
 mod fb;
@@ -157,7 +157,7 @@ fn test_runner(tests: &[&dyn Fn()]) {
     unsafe {
         uart::init();
     }
-    allocator::init_heap();
+    //  allocator::init_heap();
     led_test_harness::start_tests();
     println!("Running {} tests", tests.len());
     for test in tests {
