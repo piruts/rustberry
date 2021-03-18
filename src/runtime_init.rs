@@ -34,9 +34,7 @@ unsafe fn zero_bss() {
 pub unsafe fn runtime_init() -> ! {
     zero_bss();
     uart::init();
-    let mut counter: u8 = 0;
-
-    allocator::init_heap();
+    allocator::init();
 
     #[cfg(test)]
     crate::test_main();

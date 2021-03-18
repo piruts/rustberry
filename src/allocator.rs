@@ -16,7 +16,7 @@ pub const HEAP_SIZE: usize = 0x1000000; // 16MB stack size
 #[global_allocator]
 static ALLOCATOR: Allocator = Allocator::new();
 
-pub fn init_heap() {
+pub fn init() {
     unsafe {
         ALLOCATOR.init(__bss_end_inclusive);
     }
