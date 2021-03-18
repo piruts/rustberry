@@ -125,7 +125,6 @@ unsafe fn get_char() -> u8 {
 }
 
 pub unsafe fn put_u8(character: u8) {
-    // TODO take a u32 UTF-8 and put 4 times
     // force initialize if not yet done
     // this fallback is special case for uart_putchar as
     // without it, all output (print/assert) can fail and no
@@ -140,12 +139,26 @@ pub unsafe fn put_u8(character: u8) {
 
 #[test_case]
 fn test_put_u8() {
-    // put a rocketship
+    // say hello
     unsafe {
-        put_u8(0xF0);
-        put_u8(0x9F);
-        put_u8(0x9A);
-        put_u8(0x80);
+        uart::put_u8(b'h');
+        uart::put_u8(b'e');
+        uart::put_u8(b'l');
+        uart::put_u8(b'l');
+        uart::put_u8(b'o');
+        uart::put_u8(b' ');
+        uart::put_u8(b'f');
+        uart::put_u8(b'r');
+        uart::put_u8(b'o');
+        uart::put_u8(b'm');
+        uart::put_u8(b' ');
+        uart::put_u8(b'r');
+        uart::put_u8(b'u');
+        uart::put_u8(b's');
+        uart::put_u8(b't');
+        uart::put_u8(b' ');
+        uart::put_u8(b':');
+        uart::put_u8(b')');
     }
 }
 
