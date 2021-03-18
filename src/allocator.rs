@@ -149,7 +149,6 @@ unsafe impl GlobalAlloc for Allocator {
     }
 }
 
-
 #[test_case]
 fn test_vector() {
     let mut xs = Vec::new();
