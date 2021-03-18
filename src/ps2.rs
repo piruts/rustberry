@@ -1,5 +1,3 @@
-//use alloc::boxed::Box;
-
 use crate::gpio;
 use crate::timer;
 use crate::uart;
@@ -336,11 +334,11 @@ pub unsafe fn read_next() -> char {
 pub fn test() {
     unsafe {
         ps2_new();
-        //let dev: Ps2DeviceT = unsafe { ps2_new(3, 4) };
-        //let dev: Box<Ps2DeviceT> = unsafe { ps2_new(3, 4) };
-        loop {
-            let inputchar: char = read_next();
+        let mut inputchar: char = read_next();
+
+        while inputchar != '`' {
             uart::put_u8(inputchar as u8);
+            inputchar = read_next();
         }
     }
 }
