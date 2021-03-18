@@ -167,7 +167,7 @@ fn test_put_utf8_char() {
         cpu::dev_barrier();
         put_utf8_char('h');
         //put_utf8_char('e');  // TODO this test breaks something and does not panic, not sure what
-                               // is going on here. Will fix in subsequent PR
+        // is going on here. Will fix in subsequent PR
         cpu::dev_barrier();
     }
 }
