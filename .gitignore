@@ -18,8 +18,17 @@ Cargo.lock
 # bin files
 **/*.bin
 
+# assembly files in the root folder
+*.as
+
 # o files
 **/*.o
+
+# .nm files in the root folder
+*.nm
+
+# .readelf files
+*.readelf
 
 #---------------------------------------------------------------------------------------------------
 # MacOS
