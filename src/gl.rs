@@ -5,11 +5,14 @@ use crate::cpu;
 use core::convert::TryInto;
 
 use embedded_graphics::{
+    egtext,
+    fonts::Font24x32,
     pixelcolor::Bgr888,
+    prelude::*,
     prelude::*,
     primitives::{Circle, Rectangle, Triangle},
     style::PrimitiveStyle,
-    DrawTarget,
+    text_style, DrawTarget,
 };
 
 pub struct Display {}
@@ -393,11 +396,11 @@ pub unsafe fn space_invaders() -> Result<(), core::convert::Infallible> {
 
     loop {
         row1.clear();
-        row1.move_by(4);
+        row1.move_by(20);
         row1.draw();
 
         row2.clear();
-        row2.move_by(4);
+        row2.move_by(20);
         row2.draw();
 
         ship.clear();
@@ -411,6 +414,23 @@ pub unsafe fn space_invaders() -> Result<(), core::convert::Infallible> {
         beam2.clear();
         beam2.move_by(5);
         beam2.draw();
+
+        if row2.start_y + row2.size >= ship.pos_y - ship.size {
+            let mut display = Display {};
+            egtext!(
+                text = "Game over!",
+                top_left = ((w / 2) - (5 * 24), (h / 2) - 16),
+                style = text_style!(
+                    font = Font24x32,
+                    text_color = Bgr888::YELLOW,
+                    background_color = Bgr888::BLACK
+                )
+            )
+            .draw(&mut display)?;
+            fb::fb_swap_buffer();
+
+            return Ok(());
+        }
 
         fb::fb_swap_buffer();
         cpu::sleep(170000);
