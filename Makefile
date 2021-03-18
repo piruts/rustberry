@@ -62,10 +62,10 @@ elf: $(ELF)
 test_elf: $(TEST_ELF)
 
 run: always_clean_and_format $(BIN)
-	./bin/rpi-run.py -p -t 2 $(BIN)
+	./bin/rpi-run.py -p -t 10 $(BIN)
 
 test: always_clean_and_format $(TEST_BIN)
-	./bin/rpi-run.py -p -t 2 $(TEST_BIN)
+	./bin/rpi-run.py -p -t 10 $(TEST_BIN)
 
 doc:
 	$(call colorecho, "\nGenerating docs")
