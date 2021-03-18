@@ -20,3 +20,7 @@ dev_barrier:
 dsb:
 	mcr p15, 0, r0, c7, c10, 4
 	bx lr
+
+.global __aeabi_unwind_cpp_pr0
+__aeabi_unwind_cpp_pr0:
+    b unmangled_panic_wrapper

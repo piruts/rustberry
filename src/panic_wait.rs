@@ -44,3 +44,8 @@ fn panic(info: &PanicInfo) -> ! {
         cpu::sleep(1000000);
     }
 }
+
+#[no_mangle]
+pub fn unmangled_panic_wrapper() {
+    panic!();
+}
