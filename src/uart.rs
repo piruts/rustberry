@@ -42,8 +42,6 @@ pub struct Uart {
 }
 static mut UART: *mut Uart = MINI_UART_BASE as u32 as *mut Uart as *mut Uart;
 
-// let mailbox = unsafe { &mut *(MAILBOX_BASE as *mut MailboxT) };
-
 static mut INITIALIZED: bool = false;
 
 /* Key detail from the Broadcom Peripherals data sheet p.10
@@ -92,8 +90,10 @@ pub unsafe fn init() {
 }
 
 unsafe fn send(byte: u8) {
+    cpu::dev_barrier();
     while (*UART).lsr & MINI_UART_LSR_TX_EMPTY == 0 {}
     core::ptr::write_volatile(&mut (*UART).data, byte as u32 & 0xff_u32);
+    cpu::dev_barrier();
 }
 
 unsafe fn recieve() -> u8 {
@@ -101,7 +101,7 @@ unsafe fn recieve() -> u8 {
     (*UART).data as u8
 }
 
-unsafe fn flush() {
+pub unsafe fn flush() {
     while (*UART).lsr & MINI_UART_LSR_TX_EMPTY as u32 == 0 {}
 }
 
@@ -149,6 +149,7 @@ fn test_put_u8() {
     }
 }
 
+/*
 pub unsafe fn put_utf8_char(character: char) {
     cpu::dev_barrier();
     if !INITIALIZED {
@@ -166,8 +167,8 @@ fn test_put_utf8_char() {
     unsafe {
         cpu::dev_barrier();
         put_utf8_char('h');
-        //put_utf8_char('e');  // TODO this test breaks something and does not panic, not sure what
-        // is going on here. Will fix in subsequent PR
+        put_utf8_char('e'); // TODO this test breaks something and does not panic, not sure what
+                            // is going on here. Will fix in subsequent PR
         cpu::dev_barrier();
     }
 }
@@ -178,11 +179,12 @@ pub unsafe fn launch() {
     put_u8(0x9A);
     put_u8(0x80);
 }
+*/
 
-pub unsafe fn put_string(str: *const u8) {
-    let mut n: u32 = 0;
-    while *str.offset(n as isize) != 0 {
-        put_utf8_char(*str.offset(n as isize) as char);
-        n += 1
+/*
+pub unsafe fn put_string(str: str) {
+    for c in str.chars() {
+        put_u8(c as u8);
     }
 }
+*/
