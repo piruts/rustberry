@@ -143,7 +143,8 @@ mod uart;
 /// - Only a single core must be active and running this function.
 #[no_mangle]
 pub extern "C" fn main() -> ! {
-    cpu::wait_forever();
+    led_test_harness::success(); // flashes green led forever
+                                 //cpu::wait_forever();
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -156,7 +157,7 @@ fn test_runner(tests: &[&dyn Fn()]) {
     for test in tests {
         test();
     }
-    led_test_harness::success(); // loops forever with green led
+    led_test_harness::success(); // flashes green led forever
 }
 
 // -------------------------------------------------------------------------------------------------

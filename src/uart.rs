@@ -172,6 +172,13 @@ fn test_put_utf8_char() {
     }
 }
 
+pub unsafe fn launch() {
+    put_u8(0xF0);
+    put_u8(0x9F);
+    put_u8(0x9A);
+    put_u8(0x80);
+}
+
 pub unsafe fn put_string(str: *const u8) {
     let mut n: u32 = 0;
     while *str.offset(n as isize) != 0 {

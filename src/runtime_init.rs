@@ -34,13 +34,11 @@ unsafe fn zero_bss() {
 pub unsafe fn runtime_init() -> ! {
     zero_bss();
     uart::init();
+    let mut counter: u8 = 0;
     // Put a 🚀 over UART
-    /*
-    uart::put_u8(0xF0);
-    uart::put_u8(0x9F);
-    uart::put_u8(0x9A);
-    uart::put_u8(0x80); */
-
+    uart::launch();
+    //counter += 1;
+    //uart::put_u8(counter);
     allocator::init_heap();
 
     #[cfg(test)]
