@@ -141,24 +141,24 @@ pub unsafe fn put_u8(character: u8) {
 fn test_put_u8() {
     // say hello
     unsafe {
-        uart::put_u8(b'h');
-        uart::put_u8(b'e');
-        uart::put_u8(b'l');
-        uart::put_u8(b'l');
-        uart::put_u8(b'o');
-        uart::put_u8(b' ');
-        uart::put_u8(b'f');
-        uart::put_u8(b'r');
-        uart::put_u8(b'o');
-        uart::put_u8(b'm');
-        uart::put_u8(b' ');
-        uart::put_u8(b'r');
-        uart::put_u8(b'u');
-        uart::put_u8(b's');
-        uart::put_u8(b't');
-        uart::put_u8(b' ');
-        uart::put_u8(b':');
-        uart::put_u8(b')');
+        put_u8(b'h');
+        put_u8(b'e');
+        put_u8(b'l');
+        put_u8(b'l');
+        put_u8(b'o');
+        put_u8(b' ');
+        put_u8(b'f');
+        put_u8(b'r');
+        put_u8(b'o');
+        put_u8(b'm');
+        put_u8(b' ');
+        put_u8(b'r');
+        put_u8(b'u');
+        put_u8(b's');
+        put_u8(b't');
+        put_u8(b' ');
+        put_u8(b':');
+        put_u8(b')');
     }
 }
 
