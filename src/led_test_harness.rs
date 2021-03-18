@@ -13,11 +13,11 @@ pub fn success() -> ! {
         unsafe {
             *(led_on) = 1 << 15;
         }
-        cpu::sleep(1000000);
+        cpu::sleep(50000);
         unsafe {
             *(led_off) = 1 << 15;
         }
-        cpu::sleep(1000000);
+        cpu::sleep(50000);
     }
 }
 
