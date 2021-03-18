@@ -12,7 +12,7 @@ OBJDUMP_BINARY    = arm-none-eabi-objdump
 NM_BINARY         = arm-none-eabi-nm
 READELF_BINARY	  = arm-none-eabi-readelf
 LINKER_FILE       = src/bsp/raspberrypi/link.ld
-PROFILE			  = debug
+PROFILE			  = release
 
 # Export for build.rs
 export LINKER_FILE
@@ -23,6 +23,7 @@ RUSTFLAGS_PEDANTIC = $(RUSTFLAGS) #-D warnings -D missing_docs
 FEATURES      = bsp_rpiA
 COMPILER_ARGS = --target=$(TARGET).json \
     --features $(FEATURES)         \
+	--release					   \
     -Z build-std=core,alloc 	   \
 	-Z panic-abort-tests 
 
@@ -62,10 +63,10 @@ elf: $(ELF)
 test_elf: $(TEST_ELF)
 
 run: always_clean_and_format $(BIN)
-	./bin/rpi-run.py -p -t 10 $(BIN)
+	./bin/rpi-run.py -p -t 20 $(BIN)
 
 test: always_clean_and_format $(TEST_BIN)
-	./bin/rpi-run.py -p -t 10 $(TEST_BIN)
+	./bin/rpi-run.py -p -t 20 $(TEST_BIN)
 
 doc:
 	$(call colorecho, "\nGenerating docs")
