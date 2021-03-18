@@ -59,7 +59,6 @@ $(TEST_BIN): $(TEST_ELF)
 
 all: $(BIN)
 elf: $(ELF)
-
 test_elf: $(TEST_ELF)
 
 run: always_clean_and_format $(BIN)
@@ -93,6 +92,23 @@ objdump: $(ELF)
 nm: $(ELF)
 	$(call colorecho, "\nLaunching nm")
 	$(NM_BINARY) --demangle --print-size $(ELF) | sort | rustfilt > $(PROJECT).nm
+
+
+test-readelf: $(TEST_ELF)
+	$(call colorecho, "\nLaunching readelf")
+	$(READELF_BINARY) --headers $(TEST_ELF) > test-$(PROJECT).readelf
+
+test-objdump: $(TEST_ELF)
+	$(call colorecho, "\nLaunching objdump")
+	$(OBJDUMP_BINARY) --disassemble --demangle \
+                --section .text   \
+                --section .rodata \
+                --section .got    \
+                $(TEST_ELF) | rustfilt > test-$(PROJECT).as
+
+test-nm: $(TEST_ELF)
+	$(call colorecho, "\nLaunching nm")
+	$(NM_BINARY) --demangle --print-size $(TEST_ELF) | sort | rustfilt > test-$(PROJECT).nm
 
 # For rust-analyzer
 check:
