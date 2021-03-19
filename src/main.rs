@@ -135,6 +135,7 @@ mod panic_wait;
 mod print;
 mod runtime_init;
 //mod space_invaders;
+mod space_invaders;
 mod uart;
 
 /// Early init code.
@@ -144,6 +145,9 @@ mod uart;
 /// - Only a single core must be active and running this function.
 #[no_mangle]
 pub extern "C" fn main() -> ! {
+    unsafe {
+        space_invaders::run_game();
+    }
     led_test_harness::success(); // flashes green led forever
 }
 
