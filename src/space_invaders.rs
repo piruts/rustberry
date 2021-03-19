@@ -213,6 +213,7 @@ struct Beam {
     prev_dx: UnsafeCell<i32>,
     prev_dy: UnsafeCell<i32>,
     window_height: UnsafeCell<i32>,
+    available: UnsafeCell<bool>,
     //enemy_row1: &'a EnemyRow,
     //enemy_row2: &'a EnemyRow,
 }
@@ -357,6 +358,7 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         prev_dx: UnsafeCell::new(0 as i32),
         prev_dy: UnsafeCell::new(0 as i32),
         window_height: UnsafeCell::new(h as i32),
+        available: UnsafeCell::new(true as bool),
         //enemy_row1: &row1,
         //enemy_row2: &row2,
     };
@@ -371,6 +373,7 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         prev_dx: UnsafeCell::new(0 as i32),
         prev_dy: UnsafeCell::new(0 as i32),
         window_height: UnsafeCell::new(h as i32),
+        available: UnsafeCell::new(true as bool),
         //enemy_row1: &row1,
         //enemy_row2: &row2,
     };
@@ -385,6 +388,7 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         prev_dx: UnsafeCell::new(0 as i32),
         prev_dy: UnsafeCell::new(0 as i32),
         window_height: UnsafeCell::new(h as i32),
+        available: UnsafeCell::new(true as bool),
         //enemy_row1: &row1,
         //enemy_row2: &row2,
     };
@@ -399,6 +403,7 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         prev_dx: UnsafeCell::new(0 as i32),
         prev_dy: UnsafeCell::new(0 as i32),
         window_height: UnsafeCell::new(h as i32),
+        available: UnsafeCell::new(true as bool),
         //enemy_row1: &row1,
         //enemy_row2: &row2,
     };
@@ -413,6 +418,7 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         prev_dx: UnsafeCell::new(0 as i32),
         prev_dy: UnsafeCell::new(0 as i32),
         window_height: UnsafeCell::new(h as i32),
+        available: UnsafeCell::new(true as bool),
         //enemy_row1: &row1,
         //enemy_row2: &row2,
     };
@@ -428,7 +434,7 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         row2.move_by(20);
         row2.draw();
 
-        ship.clear();
+        //ship.clear();
         let black = PrimitiveStyle::with_fill(Bgr888::BLACK);
         let mut display = Display {};
 
@@ -445,13 +451,15 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         } else if keyboard::read_next() == 'k' {
             // try to find a beam that is not active
             for beam in &beam_arr {
-                if !*(beam.active.get()) {
+                if *(beam.available.get()) {
+                    beam.clear();
                     *(beam.curr_x.get()) = ship.pos_x;
                     *(beam.curr_y.get()) = ship.pos_y - ship.size;
                     *(beam.player.get()) = 1;
                     *(beam.prev_dx.get()) = 0;
                     *(beam.prev_dy.get()) = 0;
                     *(beam.active.get()) = true;
+                    *(beam.available.get()) = false;
                     break;
                 }
             }
@@ -482,23 +490,14 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
                     }
                 }
             } else {
-                *(beam.prev_dy.get()) = 0;
+                if *(beam.prev_dy.get()) == 0 {
+                    *(beam.available.get()) = true;
+                } else {
+                    *(beam.prev_dy.get()) = 0;
+                    *(beam.available.get()) = false;
+                }
             }
         }
-
-        /*if *(beam_arr[0].player.get()) == 1 {
-            let mut hit_ship: i32 = row2.ship_hit(&beam_arr[0]);
-            if hit_ship != -1 {
-                *(beam_arr[0].active.get()) = false;
-                row2.clear_ship(hit_ship);
-            }
-
-            hit_ship = row1.ship_hit(&beam_arr[0]);
-            if hit_ship != -1 {
-                *(beam_arr[0].active.get()) = false;
-                row1.clear_ship(hit_ship);
-            }
-        }*/
 
         if row2.start_y + row2.size >= ship.pos_y - ship.size {
             let mut display = Display {};
