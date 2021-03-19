@@ -353,7 +353,7 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         width: UnsafeCell::new(10 as i32),
         height: UnsafeCell::new(20 as i32),
         player: UnsafeCell::new(1 as i32),
-        active: UnsafeCell::new(true as bool),
+        active: UnsafeCell::new(false as bool),
         prev_dx: UnsafeCell::new(0 as i32),
         prev_dy: UnsafeCell::new(0 as i32),
         window_height: UnsafeCell::new(h as i32),
@@ -367,7 +367,7 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         width: UnsafeCell::new(10 as i32),
         height: UnsafeCell::new(20 as i32),
         player: UnsafeCell::new(-1 as i32),
-        active: UnsafeCell::new(true as bool),
+        active: UnsafeCell::new(false as bool),
         prev_dx: UnsafeCell::new(0 as i32),
         prev_dy: UnsafeCell::new(0 as i32),
         window_height: UnsafeCell::new(h as i32),
@@ -429,13 +429,28 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         row2.draw();
 
         ship.clear();
-        if keyboard::read_next() == 'h' {
+
+        if keyboard::read_next() == 'h' && ship.pos_x - 5 > 60 {
             //keyboard::PS2_KEY_ARROW_LEFT {
             ship.move_by(-5, 0);
-        } else if keyboard::read_next() == 'l' {
+        } else if keyboard::read_next() == 'l' && ship.pos_x + 5 < w - 60 {
             // keyboard::PS2_KEY_ARROW_RIGHT {
             ship.move_by(5, 0);
+        } else if keyboard::read_next() == 'k' {
+            // try to find a beam that is not active
+            for beam in &beam_arr {
+                if !*(beam.active.get()) {
+                    *(beam.curr_x.get()) = ship.pos_x;
+                    *(beam.curr_y.get()) = ship.pos_y - ship.size;
+                    *(beam.player.get()) = 1;
+                    *(beam.prev_dx.get()) = 0;
+                    *(beam.prev_dy.get()) = 0;
+                    *(beam.active.get()) = true;
+                    break;
+                }
+            }
         }
+
         ship.draw();
 
         for beam in &beam_arr {
@@ -443,10 +458,25 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
                 beam.clear();
                 beam.move_by(5);
                 beam.draw();
+
+                if *(beam.player.get()) == 1 {
+                    let mut hit_ship: i32 = row2.ship_hit(&beam);
+                    if hit_ship != -1 {
+                        *(beam.active.get()) = false;
+                        row2.clear_ship(hit_ship);
+                        continue;
+                    }
+
+                    hit_ship = row1.ship_hit(&beam);
+                    if hit_ship != -1 {
+                        *(beam.active.get()) = false;
+                        row1.clear_ship(hit_ship);
+                    }
+                }
             }
         }
 
-        if *(beam_arr[0].player.get()) == 1 {
+        /*if *(beam_arr[0].player.get()) == 1 {
             let mut hit_ship: i32 = row2.ship_hit(&beam_arr[0]);
             if hit_ship != -1 {
                 *(beam_arr[0].active.get()) = false;
@@ -458,7 +488,7 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
                 *(beam_arr[0].active.get()) = false;
                 row1.clear_ship(hit_ship);
             }
-        }
+        }*/
 
         if row2.start_y + row2.size >= ship.pos_y - ship.size {
             let mut display = Display {};
