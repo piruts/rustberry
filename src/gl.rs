@@ -179,6 +179,23 @@ impl EnemyRow {
         self.status = self.status & !(1 << ship_num);
     }
 
+    pub fn ship_hit(&self, b: &Beam) -> i32 {
+        if !((self.start_y <= b.curr_y) && (b.curr_y <= (self.start_y + self.size))) {
+            return -1;
+        }
+        for i in 0..self.row_size {
+            let alive: bool = self.ship_status(i);
+            if !alive {
+                continue;
+            }
+            let base_x: i32 = self.start_x + 2 * self.size * i;
+            if (base_x - self.size / 2 <= b.curr_x) && (b.curr_x <= base_x + self.size / 2) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     pub fn draw(&self) -> Result<(), core::convert::Infallible> {
         let mut display = Display {};
         let red = PrimitiveStyle::with_fill(Bgr888::RED);
@@ -266,6 +283,8 @@ struct Beam {
     prev_dx: i32,
     prev_dy: i32,
     window_height: i32,
+    //enemy_row1: &'a EnemyRow,
+    //enemy_row2: &'a EnemyRow,
 }
 
 impl Beam {
@@ -322,6 +341,22 @@ impl Beam {
 
         self.prev_dx = 0;
         self.prev_dy = -delta;
+
+        /*if self.player == 1 {
+            let hit_ship: i32 = self.enemy_row2.ship_hit(self);
+            if hit_ship != -1 {
+                self.active = false;
+                self.enemy_row2.clear_ship(hit_ship);
+                return;
+            }
+
+            let hit_ship: i32 = self.enemy_row1.ship_hit(self);
+            if hit_ship != -1 {
+                self.active = false;
+                self.enemy_row1.clear_ship(hit_ship);
+                return;
+            }
+        }*/
     }
 }
 
@@ -380,6 +415,8 @@ pub unsafe fn space_invaders() -> Result<(), core::convert::Infallible> {
         prev_dx: 0,
         prev_dy: 0,
         window_height: h,
+        //enemy_row1: &row1,
+        //enemy_row2: &row2,
     };
 
     let mut beam2 = Beam {
@@ -392,6 +429,8 @@ pub unsafe fn space_invaders() -> Result<(), core::convert::Infallible> {
         prev_dx: 0,
         prev_dy: 0,
         window_height: h,
+        //enemy_row1: &row1,
+        //enemy_row2: &row2,
     };
 
     loop {
@@ -414,6 +453,20 @@ pub unsafe fn space_invaders() -> Result<(), core::convert::Infallible> {
         beam2.clear();
         beam2.move_by(5);
         beam2.draw();
+
+        if beam1.player == 1 {
+            let mut hit_ship: i32 = row2.ship_hit(&beam1);
+            if hit_ship != -1 {
+                beam1.active = false;
+                row2.clear_ship(hit_ship);
+            }
+
+            hit_ship = row1.ship_hit(&beam1);
+            if hit_ship != -1 {
+                beam1.active = false;
+                row1.clear_ship(hit_ship);
+            }
+        }
 
         if row2.start_y + row2.size >= ship.pos_y - ship.size {
             let mut display = Display {};
