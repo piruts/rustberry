@@ -206,13 +206,31 @@ pub unsafe fn init() {
     gpio::set_pullup(dev.data as isize);
 }
 
+static mut timeout: u32 = 0;
+
 unsafe fn wait_for_falling_clock_edge() {
-    while gpio::read(dev.clock as u8 as isize) == 0 {}
-    while gpio::read(dev.clock as u8 as isize) == 1 {}
+    let start: u32 = timer::get_ticks();
+    while gpio::read(dev.clock as u8 as isize) == 0 {
+        if timer::get_ticks() - start > 100000 {
+            timeout = 1;
+            break;
+        }
+    }
+    while gpio::read(dev.clock as u8 as isize) == 1 {
+        if timer::get_ticks() - start > 100000 {
+            timeout = 1;
+            break;
+        } else if timeout == 1 {
+            break;
+        }
+    }
 }
 
 unsafe fn read_bit() -> u32 {
     wait_for_falling_clock_edge();
+    if timeout == 1 {
+        return 1;
+    }
     return gpio::read(dev.data as u8 as isize);
 }
 
@@ -220,7 +238,11 @@ pub unsafe fn read_scancode() -> u32 {
     let mut scancode: u32 = 0;
     let mut paritycheck: u32 = 0;
     loop {
-        while read_bit() == 1 {}
+        while read_bit() == 1 {
+            if timeout == 1 {
+                return 0;
+            }
+        }
 
         for i in 0..8 {
             let bit: u32 = read_bit();
@@ -249,6 +271,9 @@ pub unsafe fn read_sequence() -> KeyActionT {
     };
 
     let mut keycode: u32 = read_scancode();
+    if timeout == 1 {
+        return action;
+    }
 
     if keycode == 0xE0 {
         keycode = read_scancode();
@@ -277,6 +302,10 @@ pub unsafe fn read_event() -> KeyEventT {
 
     loop {
         let mut action: KeyActionT = read_sequence();
+        if timeout == 1 {
+            return event;
+        }
+
         if action.keycode != 0x12
             && action.keycode != 0x59
             && action.keycode != 0x11
@@ -296,7 +325,9 @@ pub unsafe fn read_event() -> KeyEventT {
 
 pub unsafe fn read_next() -> char {
     let mut keyevent: KeyEventT = read_event();
-
+    if timeout == 1 {
+        timeout = 0;
+    }
     loop {
         if keyevent.action.what == 0 {
             break;

@@ -49,12 +49,7 @@ pub unsafe fn read(pin: isize) -> u32 {
 const GPPUD: *mut u32 = (GPIO_BASE + 0x94) as *mut u32;
 const GPPUDCLK: *mut u32 = (GPIO_BASE + 0x98) as *mut u32;
 
-//enum { GPIO_PUD_DISABLE = 0, GPIO_PUD_PULLDOWN = 1, GPIO_PUD_PULLUP = 2 };
-
 pub unsafe fn set_pud(pin: isize, pud: u32) {
-    //let bank: u32 = pin / 32;
-    //let shift: u32 = pin % 32;
-
     let gppudclk: *mut u32 = GPPUDCLK.offset(pin / 32);
 
     GPPUD.write_volatile(pud);
@@ -96,8 +91,5 @@ pub fn test() {
         assert_eq!(get_function(18), 0);
         write(16, 0);
         assert_eq!(read(16), 0);
-        //        set_pullup(16);
-        //        set_pulldown(16);
-        //        set_pullnone(16);
     }
 }

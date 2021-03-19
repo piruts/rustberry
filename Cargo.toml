@@ -8,10 +8,11 @@ edition = "2018"
 
 [profile.release]
 lto = true
-opt-level = 1
+opt-level = 3
 
 [profile.dev]
 opt-level = 1
+# panic = "abort" # disable stack unwinding on panic
 
 [features]
 default = []
