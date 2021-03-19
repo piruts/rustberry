@@ -80,7 +80,7 @@ pub unsafe fn set_pulldown(pin: isize) {
 pub unsafe fn set_pullnone(pin: isize) {
     set_pud(pin, 0);
 }
-/*
+
 #[test_case]
 pub fn test() {
     unsafe {
@@ -101,4 +101,3 @@ pub fn test() {
         //        set_pullnone(16);
     }
 }
-*/
