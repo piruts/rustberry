@@ -429,6 +429,12 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         row2.draw();
 
         ship.clear();
+        let black = PrimitiveStyle::with_fill(Bgr888::BLACK);
+        let mut display = Display {};
+
+        Rectangle::new(Point::new(0, h - 60), Point::new(w, h - 30))
+            .into_styled(black)
+            .draw(&mut display)?;
 
         if keyboard::read_next() == 'h' && ship.pos_x - 5 > 60 {
             //keyboard::PS2_KEY_ARROW_LEFT {
@@ -510,7 +516,7 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         }
 
         fb::fb_swap_buffer();
-        cpu::sleep(170000);
+        cpu::sleep(500000);
         if (ship.pos_x + 30 > w - 30 && dx > 0) || (ship.pos_x - 30 < 30 && dx < 0) {
             dx *= -1;
         }
