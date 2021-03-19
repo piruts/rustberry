@@ -432,10 +432,10 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
 
         if keyboard::read_next() == 'h' && ship.pos_x - 5 > 60 {
             //keyboard::PS2_KEY_ARROW_LEFT {
-            ship.move_by(-5, 0);
+            ship.move_by(-20, 0);
         } else if keyboard::read_next() == 'l' && ship.pos_x + 5 < w - 60 {
             // keyboard::PS2_KEY_ARROW_RIGHT {
-            ship.move_by(5, 0);
+            ship.move_by(20, 0);
         } else if keyboard::read_next() == 'k' {
             // try to find a beam that is not active
             for beam in &beam_arr {
@@ -449,6 +449,8 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
                     break;
                 }
             }
+        } else if keyboard::read_next() == 'p' {
+            while keyboard::read_next() != 'r' {}
         }
 
         ship.draw();
@@ -456,7 +458,7 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         for beam in &beam_arr {
             if *(beam.active.get()) {
                 beam.clear();
-                beam.move_by(5);
+                beam.move_by(20);
                 beam.draw();
 
                 if *(beam.player.get()) == 1 {
