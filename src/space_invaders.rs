@@ -2,6 +2,8 @@ use crate::gl::Display;
 use crate::{cpu, fb, gl, keyboard};
 use core::convert::TryInto;
 
+use core::cell::UnsafeCell;
+
 use embedded_graphics::{
     egtext,
     fonts::Font24x32,
@@ -103,8 +105,10 @@ impl EnemyRow {
         self.status = self.status & !(1 << ship_num);
     }
 
-    pub fn ship_hit(&self, b: &Beam) -> i32 {
-        if !((self.start_y <= b.curr_y) && (b.curr_y <= (self.start_y + self.size))) {
+    pub unsafe fn ship_hit(&self, b: &Beam) -> i32 {
+        if !((self.start_y <= *(b.curr_y.get()))
+            && (*(b.curr_y.get()) <= (self.start_y + self.size)))
+        {
             return -1;
         }
         for i in 0..self.row_size {
@@ -113,7 +117,9 @@ impl EnemyRow {
                 continue;
             }
             let base_x: i32 = self.start_x + 2 * self.size * i;
-            if (base_x - self.size / 2 <= b.curr_x) && (b.curr_x <= base_x + self.size / 2) {
+            if (base_x - self.size / 2 <= *(b.curr_x.get()))
+                && (*(b.curr_x.get()) <= base_x + self.size / 2)
+            {
                 return i;
             }
         }
@@ -196,24 +202,24 @@ impl EnemyRow {
 }
 
 struct Beam {
-    curr_x: i32,
-    curr_y: i32,
-    width: i32,
-    height: i32,
+    curr_x: UnsafeCell<i32>,
+    curr_y: UnsafeCell<i32>,
+    width: UnsafeCell<i32>,
+    height: UnsafeCell<i32>,
     // 1 is player, -1 is enemy
-    player: i32,
+    player: UnsafeCell<i32>,
     // is the beam on screen
-    active: bool,
-    prev_dx: i32,
-    prev_dy: i32,
-    window_height: i32,
+    active: UnsafeCell<bool>,
+    prev_dx: UnsafeCell<i32>,
+    prev_dy: UnsafeCell<i32>,
+    window_height: UnsafeCell<i32>,
     //enemy_row1: &'a EnemyRow,
     //enemy_row2: &'a EnemyRow,
 }
 
 impl Beam {
-    pub fn draw(&self) -> Result<(), core::convert::Infallible> {
-        if !self.active {
+    pub unsafe fn draw(&self) -> Result<(), core::convert::Infallible> {
+        if !*(self.active.get()) {
             return Ok(());
         }
         let mut display = Display {};
@@ -222,24 +228,34 @@ impl Beam {
         let yellow = PrimitiveStyle::with_fill(Bgr888::YELLOW);
 
         Rectangle::new(
-            Point::new(self.curr_x, self.curr_y),
-            Point::new(self.curr_x + self.width, self.curr_y + self.height),
+            Point::new(*(self.curr_x.get()), *(self.curr_y.get())),
+            Point::new(
+                *(self.curr_x.get()) + *(self.width.get()),
+                *(self.curr_y.get()) + *(self.height.get()),
+            ),
         )
-        .into_styled(if self.player == 1 { cyan } else { yellow })
+        .into_styled(if *(self.player.get()) == 1 {
+            cyan
+        } else {
+            yellow
+        })
         .draw(&mut display)?;
 
         Ok(())
     }
 
-    pub fn clear(&self) -> Result<(), core::convert::Infallible> {
+    pub unsafe fn clear(&self) -> Result<(), core::convert::Infallible> {
         let mut display = Display {};
         let black = PrimitiveStyle::with_fill(Bgr888::BLACK);
 
         Rectangle::new(
-            Point::new(self.curr_x - self.prev_dx, self.curr_y - self.prev_dy),
             Point::new(
-                self.curr_x + self.width - self.prev_dx,
-                self.curr_y + self.height - self.prev_dy,
+                *(self.curr_x.get()) - *(self.prev_dx.get()),
+                *(self.curr_y.get()) - *(self.prev_dy.get()),
+            ),
+            Point::new(
+                *(self.curr_x.get()) + *(self.width.get()) - *(self.prev_dx.get()),
+                *(self.curr_y.get()) + *(self.height.get()) - *(self.prev_dy.get()),
             ),
         )
         .into_styled(black)
@@ -248,35 +264,37 @@ impl Beam {
         Ok(())
     }
 
-    pub fn move_by(&mut self, amount: i32) {
-        if !self.active {
-            self.prev_dx = 0;
-            self.prev_dy = 0;
+    pub unsafe fn move_by(&self, amount: i32) {
+        if !*(self.active.get()) {
+            *(self.prev_dx.get()) = 0;
+            *(self.prev_dy.get()) = 0;
             return;
         }
 
-        let delta: i32 = self.player * amount;
+        let delta: i32 = *(self.player.get()) * amount;
 
-        if (self.curr_y - delta) < 0 || (self.curr_y - delta + self.height) > self.window_height {
-            self.active = false;
+        if (*(self.curr_y.get()) - delta) < 0
+            || (*(self.curr_y.get()) - delta + *(self.height.get())) > *(self.window_height.get())
+        {
+            *(self.active.get()) = false;
             return;
         }
-        self.curr_y -= delta;
+        *(self.curr_y.get()) -= delta;
 
-        self.prev_dx = 0;
-        self.prev_dy = -delta;
+        *(self.prev_dx.get()) = 0;
+        *(self.prev_dy.get()) = -delta;
 
-        /*if self.player == 1 {
+        /*if *(self.player.get()) == 1 {
             let hit_ship: i32 = self.enemy_row2.ship_hit(self);
             if hit_ship != -1 {
-                self.active = false;
+                *(self.active.get()) = false;
                 self.enemy_row2.clear_ship(hit_ship);
                 return;
             }
 
             let hit_ship: i32 = self.enemy_row1.ship_hit(self);
             if hit_ship != -1 {
-                self.active = false;
+                *(self.active.get()) = false;
                 self.enemy_row1.clear_ship(hit_ship);
                 return;
             }
@@ -329,77 +347,77 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         status: !0,
     };
 
-    let mut beam1 = Beam {
-        curr_x: 100,
-        curr_y: h - 30,
-        width: 10,
-        height: 20,
-        player: 1,
-        active: true,
-        prev_dx: 0,
-        prev_dy: 0,
-        window_height: h,
+    let beam1 = Beam {
+        curr_x: UnsafeCell::new(100 as i32),
+        curr_y: UnsafeCell::new(h - 30 as i32),
+        width: UnsafeCell::new(10 as i32),
+        height: UnsafeCell::new(20 as i32),
+        player: UnsafeCell::new(1 as i32),
+        active: UnsafeCell::new(true as bool),
+        prev_dx: UnsafeCell::new(0 as i32),
+        prev_dy: UnsafeCell::new(0 as i32),
+        window_height: UnsafeCell::new(h as i32),
         //enemy_row1: &row1,
         //enemy_row2: &row2,
     };
 
-    let mut beam2 = Beam {
-        curr_x: 200,
-        curr_y: 75,
-        width: 10,
-        height: 20,
-        player: -1,
-        active: true,
-        prev_dx: 0,
-        prev_dy: 0,
-        window_height: h,
+    let beam2 = Beam {
+        curr_x: UnsafeCell::new(200 as i32),
+        curr_y: UnsafeCell::new(75 as i32),
+        width: UnsafeCell::new(10 as i32),
+        height: UnsafeCell::new(20 as i32),
+        player: UnsafeCell::new(-1 as i32),
+        active: UnsafeCell::new(true as bool),
+        prev_dx: UnsafeCell::new(0 as i32),
+        prev_dy: UnsafeCell::new(0 as i32),
+        window_height: UnsafeCell::new(h as i32),
         //enemy_row1: &row1,
         //enemy_row2: &row2,
     };
 
-    let mut beam3 = Beam {
-        curr_x: 200,
-        curr_y: 75,
-        width: 10,
-        height: 20,
-        player: -1,
-        active: false,
-        prev_dx: 0,
-        prev_dy: 0,
-        window_height: h,
+    let beam3 = Beam {
+        curr_x: UnsafeCell::new(200 as i32),
+        curr_y: UnsafeCell::new(75 as i32),
+        width: UnsafeCell::new(10 as i32),
+        height: UnsafeCell::new(20 as i32),
+        player: UnsafeCell::new(-1 as i32),
+        active: UnsafeCell::new(false as bool),
+        prev_dx: UnsafeCell::new(0 as i32),
+        prev_dy: UnsafeCell::new(0 as i32),
+        window_height: UnsafeCell::new(h as i32),
         //enemy_row1: &row1,
         //enemy_row2: &row2,
     };
 
-    let mut beam4 = Beam {
-        curr_x: 200,
-        curr_y: 75,
-        width: 10,
-        height: 20,
-        player: -1,
-        active: false,
-        prev_dx: 0,
-        prev_dy: 0,
-        window_height: h,
+    let beam4 = Beam {
+        curr_x: UnsafeCell::new(200 as i32),
+        curr_y: UnsafeCell::new(75 as i32),
+        width: UnsafeCell::new(10 as i32),
+        height: UnsafeCell::new(20 as i32),
+        player: UnsafeCell::new(-1 as i32),
+        active: UnsafeCell::new(false as bool),
+        prev_dx: UnsafeCell::new(0 as i32),
+        prev_dy: UnsafeCell::new(0 as i32),
+        window_height: UnsafeCell::new(h as i32),
         //enemy_row1: &row1,
         //enemy_row2: &row2,
     };
 
-    let mut beam5 = Beam {
-        curr_x: 200,
-        curr_y: 75,
-        width: 10,
-        height: 20,
-        player: -1,
-        active: false,
-        prev_dx: 0,
-        prev_dy: 0,
-        window_height: h,
+    let beam5 = Beam {
+        curr_x: UnsafeCell::new(200 as i32),
+        curr_y: UnsafeCell::new(75 as i32),
+        width: UnsafeCell::new(10 as i32),
+        height: UnsafeCell::new(20 as i32),
+        player: UnsafeCell::new(-1 as i32),
+        active: UnsafeCell::new(false as bool),
+        prev_dx: UnsafeCell::new(0 as i32),
+        prev_dy: UnsafeCell::new(0 as i32),
+        window_height: UnsafeCell::new(h as i32),
         //enemy_row1: &row1,
         //enemy_row2: &row2,
     };
 
-    let beam_arr: [&mut Beam; 5] = [&mut beam1, &mut beam2, &mut beam3, &mut beam4, &mut beam5];
+    let beam_arr: [Beam; 5] = [beam1, beam2, beam3, beam4, beam5];
 
     loop {
         row1.clear();
@@ -421,23 +439,23 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         ship.draw();
 
         for beam in &beam_arr {
-            if beam.active {
+            if *(beam.active.get()) {
                 beam.clear();
                 beam.move_by(5);
                 beam.draw();
             }
         }
 
-        if beam1.player == 1 {
-            let mut hit_ship: i32 = row2.ship_hit(&beam1);
+        if *(beam_arr[0].player.get()) == 1 {
+            let mut hit_ship: i32 = row2.ship_hit(&beam_arr[0]);
             if hit_ship != -1 {
-                beam1.active = false;
+                *(beam_arr[0].active.get()) = false;
                 row2.clear_ship(hit_ship);
             }
 
-            hit_ship = row1.ship_hit(&beam1);
+            hit_ship = row1.ship_hit(&beam_arr[0]);
             if hit_ship != -1 {
-                beam1.active = false;
+                *(beam_arr[0].active.get()) = false;
                 row1.clear_ship(hit_ship);
             }
         }
