@@ -462,8 +462,8 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         ship.draw();
 
         for beam in &beam_arr {
+            beam.clear();
             if *(beam.active.get()) {
-                beam.clear();
                 beam.move_by(20);
                 beam.draw();
 
@@ -481,6 +481,8 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
                         row1.clear_ship(hit_ship);
                     }
                 }
+            } else {
+                *(beam.prev_dy.get()) = 0;
             }
         }
 
@@ -517,8 +519,8 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
 
         fb::fb_swap_buffer();
         cpu::sleep(500000);
-        if (ship.pos_x + 30 > w - 30 && dx > 0) || (ship.pos_x - 30 < 30 && dx < 0) {
+        /*if (ship.pos_x + 30 > w - 30 && dx > 0) || (ship.pos_x - 30 < 30 && dx < 0) {
             dx *= -1;
-        }
+        }*/
     }
 }
