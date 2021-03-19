@@ -120,9 +120,9 @@
 #![test_runner(crate::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
-//extern crate alloc;
+extern crate alloc;
 
-//mod allocator;
+mod allocator;
 mod bsp;
 mod cpu;
 mod fb;
@@ -135,6 +135,7 @@ mod memory;
 mod panic_wait;
 mod print;
 mod runtime_init;
+mod timer;
 //mod space_invaders;
 mod uart;
 
