@@ -228,14 +228,14 @@ You should probably restart the Pi, since you interrupted it mid-load.
                 if args.T == -1 and select.select([sys.stdin,],[],[],0.0)[0]:  # user has typed something on stdin
                     sys.stdin.readline()  # consume input and discard
                     print(bcolors.FAILRED + "Huh? Did you intend to type that on your PS/2 keyboard?" + bcolors.ENDC)
-                c = getc(4)
+                c = getc(1)
                 if c == b'\x04':   # End of transmission.
                     printq("\n%s: received EOT from Pi. Detaching." % args.exename)
                     break
                 if c is None: continue
                 last_comm = time.time()
 
-                print(c.decode('utf8', 'replace'), end='')
+                print(c.decode('ascii', 'replace'), end='')
                 sys.stdout.flush()
         except KeyboardInterrupt:
             printq("\n%s: received Ctrl-C from user. Detaching." % args.exename)
