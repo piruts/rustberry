@@ -120,14 +120,15 @@
 #![test_runner(crate::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
-extern crate alloc;
+//extern crate alloc;
 
-mod allocator;
+//mod allocator;
 mod bsp;
 mod cpu;
 mod fb;
 mod gl;
 mod gpio;
+mod keyboard;
 mod led_test_harness;
 mod mailbox;
 mod memory;
@@ -153,6 +154,7 @@ pub extern "C" fn main() -> ! {
 
 #[cfg(test)]
 fn test_runner(tests: &[&dyn Fn()]) {
+    //  allocator::init_heap();
     led_test_harness::start_tests();
     for test in tests {
         test();
