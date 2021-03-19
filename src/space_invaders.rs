@@ -1,11 +1,5 @@
-#[path = "fb.rs"]
-mod fb;
-
-#[path = "gl.rs"]
-mod gl;
-
-use crate::cpu;
 use crate::gl::Display;
+use crate::{cpu, fb, gl};
 use core::convert::TryInto;
 
 use embedded_graphics::{
@@ -422,4 +416,3 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         }
     }
 }
-
