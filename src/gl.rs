@@ -1,7 +1,4 @@
-#[path = "fb.rs"]
-mod fb;
-
-use crate::cpu;
+use crate::{cpu, fb};
 use core::convert::TryInto;
 
 use embedded_graphics::{

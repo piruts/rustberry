@@ -23,11 +23,21 @@ rustup override set nightly
 
 ### Install Dependencies
 ```bash
-cargo install cargo-binutils
-rustup component add llvm-tools
-rustup component add clippy
-rustup component add rust-src
+cargo install cargo-binutils rustfilt
+rustup component add llvm-tools clippy rust-src
 ```
+
+## Setup Hardware
+Things you need:
+- Raspberry Pi A
+- CP2102 Breakout
+- PS/2 Keyboard
+- HDMI Cable
+- HDMI Display
+- Jumper cables
+
+Before plugging anything in, connect 
+### Keyboard
 
 ## Build
 
