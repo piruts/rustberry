@@ -120,9 +120,9 @@
 #![test_runner(crate::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
-//extern crate alloc;
+extern crate alloc;
 
-//mod allocator;
+mod allocator;
 mod bsp;
 mod cpu;
 mod fb;
@@ -135,6 +135,7 @@ mod memory;
 mod panic_wait;
 mod print;
 mod runtime_init;
+mod timer;
 //mod space_invaders;
 mod uart;
 
@@ -145,7 +146,7 @@ mod uart;
 /// - Only a single core must be active and running this function.
 #[no_mangle]
 pub extern "C" fn main() -> ! {
-    cpu::wait_forever();
+    led_test_harness::success(); // flashes green led forever
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -154,17 +155,12 @@ pub extern "C" fn main() -> ! {
 
 #[cfg(test)]
 fn test_runner(tests: &[&dyn Fn()]) {
-    unsafe {
-        uart::init();
-        keyboard::init();
-    }
     //  allocator::init_heap();
     led_test_harness::start_tests();
-    println!("Running {} tests", tests.len());
     for test in tests {
         test();
     }
-    led_test_harness::success(); // loops forever with green led
+    led_test_harness::success(); // flashes green led forever
 }
 
 // -------------------------------------------------------------------------------------------------

@@ -1,3 +1,5 @@
+// Author: Flynn Dreilinger <flynnd@stanford.edu>
+
 const GPIO_BASE: u32 = 0x20200000; // leave here to test GPIO module
 
 use crate::cpu;
@@ -11,11 +13,11 @@ pub fn success() -> ! {
         unsafe {
             *(led_on) = 1 << 15;
         }
-        cpu::sleep(1000000);
+        cpu::sleep(50000);
         unsafe {
             *(led_off) = 1 << 15;
         }
-        cpu::sleep(1000000);
+        cpu::sleep(50000);
     }
 }
 

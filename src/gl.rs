@@ -441,6 +441,7 @@ pub unsafe fn space_invaders() -> Result<(), core::convert::Infallible> {
 }
 
 pub unsafe fn _gl_test() -> Result<(), core::convert::Infallible> {
+    // TODO make non-public
     fb::fb_init(640, 512, 4, fb::FB_DOUBLEBUFFER);
     let mut display = Display {};
 

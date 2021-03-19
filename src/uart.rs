@@ -42,8 +42,6 @@ pub struct Uart {
 }
 static mut UART: *mut Uart = MINI_UART_BASE as u32 as *mut Uart as *mut Uart;
 
-// let mailbox = unsafe { &mut *(MAILBOX_BASE as *mut MailboxT) };
-
 static mut INITIALIZED: bool = false;
 
 /* Key detail from the Broadcom Peripherals data sheet p.10
@@ -92,16 +90,18 @@ pub unsafe fn init() {
 }
 
 unsafe fn send(byte: u8) {
+    cpu::dev_barrier();
     while (*UART).lsr & MINI_UART_LSR_TX_EMPTY == 0 {}
     core::ptr::write_volatile(&mut (*UART).data, byte as u32 & 0xff_u32);
+    cpu::dev_barrier();
 }
 
-unsafe fn recieve() -> u8 {
+unsafe fn receive() -> u8 {
     while !has_char() {}
     (*UART).data as u8
 }
 
-unsafe fn flush() {
+pub unsafe fn flush() {
     while (*UART).lsr & MINI_UART_LSR_TX_EMPTY as u32 == 0 {}
 }
 
@@ -114,10 +114,10 @@ unsafe fn has_char() -> bool {
 // but connected terminal may expect to receive a CR-LF sequence from Pi
 // and may send a CR to Pi for return/enter key. get_char and put_char
 // internally convert chars, client can simply send/receive newline
-// Use send/recieve to send/receive raw byte, no conversion
+// Use send/receive to send/receive raw byte, no conversion
 
 unsafe fn get_char() -> u8 {
-    let mut character = recieve();
+    let mut character = receive();
     if character == b'\r' {
         character = b'\n'; // convert CR to newline
     }
@@ -125,7 +125,6 @@ unsafe fn get_char() -> u8 {
 }
 
 pub unsafe fn put_u8(character: u8) {
-    // TODO take a u32 UTF-8 and put 4 times
     // force initialize if not yet done
     // this fallback is special case for uart_putchar as
     // without it, all output (print/assert) can fail and no
@@ -140,15 +139,30 @@ pub unsafe fn put_u8(character: u8) {
 
 #[test_case]
 fn test_put_u8() {
-    // put a rocketship
+    // say hello
     unsafe {
-        put_u8(0xF0);
-        put_u8(0x9F);
-        put_u8(0x9A);
-        put_u8(0x80);
+        put_u8(b'h');
+        put_u8(b'e');
+        put_u8(b'l');
+        put_u8(b'l');
+        put_u8(b'o');
+        put_u8(b' ');
+        put_u8(b'f');
+        put_u8(b'r');
+        put_u8(b'o');
+        put_u8(b'm');
+        put_u8(b' ');
+        put_u8(b'r');
+        put_u8(b'u');
+        put_u8(b's');
+        put_u8(b't');
+        put_u8(b' ');
+        put_u8(b':');
+        put_u8(b')');
     }
 }
 
+/*
 pub unsafe fn put_utf8_char(character: char) {
     cpu::dev_barrier();
     if !INITIALIZED {
@@ -166,16 +180,24 @@ fn test_put_utf8_char() {
     unsafe {
         cpu::dev_barrier();
         put_utf8_char('h');
-        //put_utf8_char('e');  // TODO this test breaks something and does not panic, not sure what
-        // is going on here. Will fix in subsequent PR
+        put_utf8_char('e'); // TODO this test breaks something and does not panic, not sure what
+                            // is going on here. Will fix in subsequent PR
         cpu::dev_barrier();
     }
 }
 
-pub unsafe fn put_string(str: *const u8) {
-    let mut n: u32 = 0;
-    while *str.offset(n as isize) != 0 {
-        put_utf8_char(*str.offset(n as isize) as char);
-        n += 1
+pub unsafe fn launch() {
+    put_u8(0xF0);
+    put_u8(0x9F);
+    put_u8(0x9A);
+    put_u8(0x80);
+}
+*/
+
+/*
+pub unsafe fn put_string(str: str) {
+    for c in str.chars() {
+        put_u8(c as u8);
     }
 }
+*/
