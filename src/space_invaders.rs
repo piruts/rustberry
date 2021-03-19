@@ -1,5 +1,5 @@
 use crate::gl::Display;
-use crate::{cpu, fb, gl};
+use crate::{cpu, fb, gl, keyboard};
 use core::convert::TryInto;
 
 use embedded_graphics::{
@@ -357,6 +357,50 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         //enemy_row2: &row2,
     };
 
+    let mut beam3 = Beam {
+        curr_x: 200,
+        curr_y: 75,
+        width: 10,
+        height: 20,
+        player: -1,
+        active: false,
+        prev_dx: 0,
+        prev_dy: 0,
+        window_height: h,
+        //enemy_row1: &row1,
+        //enemy_row2: &row2,
+    };
+
+    let mut beam4 = Beam {
+        curr_x: 200,
+        curr_y: 75,
+        width: 10,
+        height: 20,
+        player: -1,
+        active: false,
+        prev_dx: 0,
+        prev_dy: 0,
+        window_height: h,
+        //enemy_row1: &row1,
+        //enemy_row2: &row2,
+    };
+
+    let mut beam5 = Beam {
+        curr_x: 200,
+        curr_y: 75,
+        width: 10,
+        height: 20,
+        player: -1,
+        active: false,
+        prev_dx: 0,
+        prev_dy: 0,
+        window_height: h,
+        //enemy_row1: &row1,
+        //enemy_row2: &row2,
+    };
+
+    let beam_arr: [&mut Beam; 5] = [&mut beam1, &mut beam2, &mut beam3, &mut beam4, &mut beam5];
+
     loop {
         row1.clear();
         row1.move_by(20);
@@ -367,16 +411,22 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         row2.draw();
 
         ship.clear();
-        ship.move_by(dx, 0);
+        if keyboard::read_next() == 'h' {
+            //keyboard::PS2_KEY_ARROW_LEFT {
+            ship.move_by(-5, 0);
+        } else if keyboard::read_next() == 'l' {
+            // keyboard::PS2_KEY_ARROW_RIGHT {
+            ship.move_by(5, 0);
+        }
         ship.draw();
 
-        beam1.clear();
-        beam1.move_by(5);
-        beam1.draw();
-
-        beam2.clear();
-        beam2.move_by(5);
-        beam2.draw();
+        for beam in &beam_arr {
+            if beam.active {
+                beam.clear();
+                beam.move_by(5);
+                beam.draw();
+            }
+        }
 
         if beam1.player == 1 {
             let mut hit_ship: i32 = row2.ship_hit(&beam1);

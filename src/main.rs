@@ -135,9 +135,8 @@ mod memory;
 mod panic_wait;
 mod print;
 mod runtime_init;
-mod timer;
-//mod space_invaders;
 mod space_invaders;
+mod timer;
 mod uart;
 
 /// Early init code.
