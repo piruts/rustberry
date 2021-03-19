@@ -433,7 +433,7 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         if keyboard::read_next() == 'h' && ship.pos_x - 5 > 60 {
             //keyboard::PS2_KEY_ARROW_LEFT {
             ship.move_by(-5, 0);
-        } else if keyboard::read_next() == 'l' && ship.pos_y + 5 < w - 60 {
+        } else if keyboard::read_next() == 'l' && ship.pos_x + 5 < w - 60 {
             // keyboard::PS2_KEY_ARROW_RIGHT {
             ship.move_by(5, 0);
         } else if keyboard::read_next() == 'k' {
