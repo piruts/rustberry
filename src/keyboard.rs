@@ -211,13 +211,13 @@ static mut timeout: u32 = 0;
 unsafe fn wait_for_falling_clock_edge() {
     let start: u32 = timer::get_ticks();
     while gpio::read(dev.clock as u8 as isize) == 0 {
-        if timer::get_ticks() - start > 1000000 {
+        if timer::get_ticks() - start > 100000 {
             timeout = 1;
             break;
         }
     }
     while gpio::read(dev.clock as u8 as isize) == 1 {
-        if timer::get_ticks() - start > 1000000 {
+        if timer::get_ticks() - start > 100000 {
             timeout = 1;
             break;
         } else if timeout == 1 {
