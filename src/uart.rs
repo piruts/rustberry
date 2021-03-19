@@ -96,7 +96,7 @@ unsafe fn send(byte: u8) {
     cpu::dev_barrier();
 }
 
-unsafe fn recieve() -> u8 {
+unsafe fn receive() -> u8 {
     while !has_char() {}
     (*UART).data as u8
 }
@@ -114,10 +114,10 @@ unsafe fn has_char() -> bool {
 // but connected terminal may expect to receive a CR-LF sequence from Pi
 // and may send a CR to Pi for return/enter key. get_char and put_char
 // internally convert chars, client can simply send/receive newline
-// Use send/recieve to send/receive raw byte, no conversion
+// Use send/receive to send/receive raw byte, no conversion
 
 unsafe fn get_char() -> u8 {
-    let mut character = recieve();
+    let mut character = receive();
     if character == b'\r' {
         character = b'\n'; // convert CR to newline
     }

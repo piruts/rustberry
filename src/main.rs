@@ -128,12 +128,14 @@ mod cpu;
 mod fb;
 mod gl;
 mod gpio;
+mod keyboard;
 mod led_test_harness;
 mod mailbox;
 mod memory;
 mod panic_wait;
 mod print;
 mod runtime_init;
+mod timer;
 //mod space_invaders;
 mod space_invaders;
 mod uart;
@@ -157,6 +159,7 @@ pub extern "C" fn main() -> ! {
 
 #[cfg(test)]
 fn test_runner(tests: &[&dyn Fn()]) {
+    //  allocator::init_heap();
     led_test_harness::start_tests();
     for test in tests {
         test();

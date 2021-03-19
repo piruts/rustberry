@@ -422,4 +422,3 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         }
     }
 }
-
