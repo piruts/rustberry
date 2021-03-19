@@ -213,6 +213,7 @@ struct Beam {
     prev_dx: UnsafeCell<i32>,
     prev_dy: UnsafeCell<i32>,
     window_height: UnsafeCell<i32>,
+    available: UnsafeCell<bool>,
     //enemy_row1: &'a EnemyRow,
     //enemy_row2: &'a EnemyRow,
 }
@@ -357,6 +358,7 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         prev_dx: UnsafeCell::new(0 as i32),
         prev_dy: UnsafeCell::new(0 as i32),
         window_height: UnsafeCell::new(h as i32),
+        available: UnsafeCell::new(true as bool),
         //enemy_row1: &row1,
         //enemy_row2: &row2,
     };
@@ -371,6 +373,7 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         prev_dx: UnsafeCell::new(0 as i32),
         prev_dy: UnsafeCell::new(0 as i32),
         window_height: UnsafeCell::new(h as i32),
+        available: UnsafeCell::new(true as bool),
         //enemy_row1: &row1,
         //enemy_row2: &row2,
     };
@@ -385,6 +388,7 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         prev_dx: UnsafeCell::new(0 as i32),
         prev_dy: UnsafeCell::new(0 as i32),
         window_height: UnsafeCell::new(h as i32),
+        available: UnsafeCell::new(true as bool),
         //enemy_row1: &row1,
         //enemy_row2: &row2,
     };
@@ -399,6 +403,7 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         prev_dx: UnsafeCell::new(0 as i32),
         prev_dy: UnsafeCell::new(0 as i32),
         window_height: UnsafeCell::new(h as i32),
+        available: UnsafeCell::new(true as bool),
         //enemy_row1: &row1,
         //enemy_row2: &row2,
     };
@@ -413,6 +418,7 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         prev_dx: UnsafeCell::new(0 as i32),
         prev_dy: UnsafeCell::new(0 as i32),
         window_height: UnsafeCell::new(h as i32),
+        available: UnsafeCell::new(true as bool),
         //enemy_row1: &row1,
         //enemy_row2: &row2,
     };
@@ -428,7 +434,7 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         row2.move_by(20);
         row2.draw();
 
-        ship.clear();
+        //ship.clear();
         let black = PrimitiveStyle::with_fill(Bgr888::BLACK);
         let mut display = Display {};
 
@@ -445,13 +451,15 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         } else if keyboard::read_next() == 'k' {
             // try to find a beam that is not active
             for beam in &beam_arr {
-                if !*(beam.active.get()) {
+                if *(beam.available.get()) {
+                    beam.clear();
                     *(beam.curr_x.get()) = ship.pos_x;
                     *(beam.curr_y.get()) = ship.pos_y - ship.size;
                     *(beam.player.get()) = 1;
                     *(beam.prev_dx.get()) = 0;
                     *(beam.prev_dy.get()) = 0;
                     *(beam.active.get()) = true;
+                    *(beam.available.get()) = false;
                     break;
                 }
             }
@@ -462,8 +470,8 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
         ship.draw();
 
         for beam in &beam_arr {
+            beam.clear();
             if *(beam.active.get()) {
-                beam.clear();
                 beam.move_by(20);
                 beam.draw();
 
@@ -480,6 +488,13 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
                         *(beam.active.get()) = false;
                         row1.clear_ship(hit_ship);
                     }
+                }
+            } else {
+                if *(beam.prev_dy.get()) == 0 {
+                    *(beam.available.get()) = true;
+                } else {
+                    *(beam.prev_dy.get()) = 0;
+                    *(beam.available.get()) = false;
                 }
             }
         }
@@ -517,8 +532,8 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
 
         fb::fb_swap_buffer();
         cpu::sleep(500000);
-        if (ship.pos_x + 30 > w - 30 && dx > 0) || (ship.pos_x - 30 < 30 && dx < 0) {
+        /*if (ship.pos_x + 30 > w - 30 && dx > 0) || (ship.pos_x - 30 < 30 && dx < 0) {
             dx *= -1;
-        }
+        }*/
     }
 }
