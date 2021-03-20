@@ -5,7 +5,7 @@
  * Authors:
  * - Ashish Rao <aprao@stanford.edu>
  * - Flynn Dreilinger 
- * - Xiluo He
+ * - Xiluo He <xiluohe@stanford.edu>
  */
 
 use crate::gl::Display;
