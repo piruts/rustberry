@@ -1,8 +1,8 @@
 /*
- * Rust code to interact with the mailbox system on the Raspberry 
+ * Rust code to interact with the mailbox system on the Raspberry
  * Pi. Used to request a framebuffer on which images can be drawn.
  *
- * Based off of the cs107e libpi module's mailbox implementation 
+ * Based off of the cs107e libpi module's mailbox implementation
  * authored by Pat Hanrahan and Philip Levis.
  *
  * Author: Ashish Rao <aprao@stanford.edu>

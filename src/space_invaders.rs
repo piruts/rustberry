@@ -1,5 +1,5 @@
 /*
- * Space invaders in Rust! With the included Makefile, can be run with 
+ * Space invaders in Rust! With the included Makefile, can be run with
  * make run.
  *
  * Authors:
