@@ -4,7 +4,7 @@
  *
  * Authors:
  * - Ashish Rao <aprao@stanford.edu>
- * - Flynn Dreilinger 
+ * - Flynn Dreilinger <flynnd@stanford.edu>
  * - Xiluo He <xiluohe@stanford.edu>
  */
 
