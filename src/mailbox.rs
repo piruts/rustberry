@@ -1,3 +1,13 @@
+/*
+ * Rust code to interact with the mailbox system on the Raspberry 
+ * Pi. Used to request a framebuffer on which images can be drawn.
+ *
+ * Based off of the cs107e libpi module's mailbox implementation 
+ * authored by Pat Hanrahan and Philip Levis.
+ *
+ * Author: Ashish Rao <aprao@stanford.edu>
+ */
+
 const MAILBOX_BASE: u32 = 0x2000B880;
 const MAILBOX_FULL: u32 = 1 << 31;
 const MAILBOX_EMPTY: u32 = 1 << 30;

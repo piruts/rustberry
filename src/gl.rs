@@ -1,3 +1,10 @@
+/*
+ * Implementation of traits necessary to use the embedded-graphics
+ * crate for drawing shapes on a screen.
+ *
+ * Author: Ashish Rao <aprao@stanford.edu>
+ */
+
 use crate::{cpu, fb};
 use core::convert::TryInto;
 
