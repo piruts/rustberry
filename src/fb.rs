@@ -1,3 +1,12 @@
+/*
+ * Framebuffer module that can be used to render images on a
+ * monitor using the Raspberry Pi's GPU. Based off of the framebuffer module
+ * in CS107E's libpi module
+ *
+ * Author: Ashish Rao <aprao@stanford.edu>
+ *
+ */
+
 #[path = "mailbox.rs"]
 mod mailbox;
 

@@ -1,3 +1,13 @@
+/*
+ * Space invaders in Rust! With the included Makefile, can be run with
+ * make run.
+ *
+ * Authors:
+ * - Ashish Rao <aprao@stanford.edu>
+ * - Flynn Dreilinger <flynnd@stanford.edu>
+ * - Xiluo He <xiluohe@stanford.edu>
+ */
+
 use crate::gl::Display;
 use crate::{cpu, fb, gl, keyboard};
 use core::convert::TryInto;
@@ -498,20 +508,6 @@ pub unsafe fn run_game() -> Result<(), core::convert::Infallible> {
                 }
             }
         }
-
-        /*if *(beam_arr[0].player.get()) == 1 {
-            let mut hit_ship: i32 = row2.ship_hit(&beam_arr[0]);
-            if hit_ship != -1 {
-                *(beam_arr[0].active.get()) = false;
-                row2.clear_ship(hit_ship);
-            }
-
-            hit_ship = row1.ship_hit(&beam_arr[0]);
-            if hit_ship != -1 {
-                *(beam_arr[0].active.get()) = false;
-                row1.clear_ship(hit_ship);
-            }
-        }*/
 
         if row2.start_y + row2.size >= ship.pos_y - ship.size {
             let mut display = Display {};
