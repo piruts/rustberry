@@ -1,3 +1,13 @@
+/*
+ * Space invaders in Rust! With the included Makefile, can be run with 
+ * make run.
+ *
+ * Authors:
+ * - Ashish Rao <aprao@stanford.edu>
+ * - Flynn Dreilinger 
+ * - Xiluo He
+ */
+
 use crate::gl::Display;
 use crate::{cpu, fb, gl, keyboard};
 use core::convert::TryInto;
