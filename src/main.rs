@@ -2,7 +2,7 @@
 //
 // Copyright (c) 2018-2021 Andre Richter <andre.o.richter@gmail.com>
 // 
-// Modified by Flynn Dreilinger <flynnd@stanford.edu>, Ashish Rao <aprao@stanford.edu>, and Xiluo He <xiluohe@stanford.edu>
+// Edited 2021 by Flynn Dreilinger <flynnd@stanford.edu>, Ashish Rao <aprao@stanford.edu>, and Xiluo He <xiluohe@stanford.edu>
 
 #![feature(asm)]
 #![feature(alloc_error_handler)]
@@ -10,7 +10,6 @@
 #![feature(global_asm)]
 #![feature(panic_info_message)]
 #![feature(const_mut_refs)]
-//#![feature(core_intrinsics)]
 #![no_main]
 #![no_std]
 #![feature(custom_test_frameworks)]
@@ -30,7 +29,6 @@ mod led_test_harness;
 mod mailbox;
 mod memory;
 mod panic_wait;
-mod print;
 mod runtime_init;
 mod space_invaders;
 mod timer;

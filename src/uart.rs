@@ -1,5 +1,5 @@
 // Author: Flynn Dreilinger <flynnd@stanford.edu>
-// based on uart.c by Pat Hanrahan
+// based on uart.c by Pat Hanrahan: https://github.com/cs107e/cs107e.github.io/blob/master/cs107e/src/uart.c
 
 use crate::cpu;
 
