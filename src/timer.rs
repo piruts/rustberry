@@ -1,3 +1,4 @@
+// Author: Xiluo He <xiluohe@stanford.edu>
 const TIME: *mut u32 = 0x20003004 as *mut u32;
 
 pub unsafe fn get_ticks() -> u32 {
