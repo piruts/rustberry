@@ -6,7 +6,7 @@
 
 //! A panic handler that infinitely waits.
 
-use crate::{cpu, println};
+use crate::cpu;
 use core::panic::PanicInfo;
 
 const GPIO_BASE: u32 = 0x20200000; // leave here to test GPIO module
@@ -18,11 +18,6 @@ fn alloc_error_handler(layout: alloc::alloc::Layout) -> ! {
 
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    if let Some(args) = info.message() {
-        println!("\nKernel panic: {}", args);
-    } else {
-        println!("\nKernel panic!");
-    }
 
     let gpio = GPIO_BASE as *const u32;
     let fsel_3 = unsafe { gpio.offset(3) as *mut u32 };
